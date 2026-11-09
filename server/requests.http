@@ -84,3 +84,13 @@ DELETE {{host}}/api/items/{{itemId}}
 
 ### Delete with an invalid id → 400
 DELETE {{host}}/api/items/banana
+
+
+### Unknown route → should be 404 JSON
+GET {{host}}/api/pizza
+
+### Malformed JSON → should be 400 JSON
+POST {{host}}/api/items
+Content-Type: application/json
+
+{ "title": "broken json",
