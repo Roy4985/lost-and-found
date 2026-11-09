@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import mongoose from 'mongoose';
 import { Item } from '../models/Item.js';
 
 const router = Router();
@@ -14,10 +15,48 @@ function pickEditable(body = {}) {
   return data;
 }
 
+// Middleware for every /:id route. Rejects ids that can't possibly exist.
+function checkId(req, res, next) {
+  if (!mongoose.isValidObjectId(req.params.id)) {
+    return res.status(400).json({ error: 'Invalid item id' });
+  }
+  next();
+}
+
+// Turns database errors into clean JSON answers.
+function handleDbError(err, res) {
+  if (err.name === 'ValidationError') {
+    const details = Object.values(err.errors).map((e) =>
+      e.name === 'CastError' ? `${e.path} has an invalid value` : e.message
+    );
+    return res.status(400).json({ error: 'Invalid item data', details });
+  }
+  if (err.name === 'CastError') {
+    return res.status(400).json({ error: `${err.path} has an invalid value` });
+  }
+  console.error(err);
+  return res.status(500).json({ error: 'Something went wrong on the server' });
+}
+
 // GET /api/items → all items, newest first
 router.get('/', async (req, res) => {
-  const items = await Item.find().sort({ createdAt: -1 });
-  res.json(items);
+  try {
+    const items = await Item.find().sort({ createdAt: -1 });
+    res.json(items);
+  } catch (err) {
+    handleDbError(err, res);
+  }
+});
+
+// GET /api/items/:id → one item
+router.get('/:id', checkId, async (req, res) => {
+  try {
+    const item = await Item.findById(req.params.id);
+    if (!item) return res.status(404).json({ error: 'Item not found' });
+    res.json(item);
+  } catch (err) {
+    handleDbError(err, res);
+  }
 });
 
 // POST /api/items → create an item
@@ -26,14 +65,7 @@ router.post('/', async (req, res) => {
     const item = await Item.create(pickEditable(req.body));
     res.status(201).json(item);
   } catch (err) {
-    if (err.name === 'ValidationError') {
-      const details = Object.values(err.errors).map((e) =>
-        e.name === 'CastError' ? `${e.path} has an invalid value` : e.message
-      );
-      return res.status(400).json({ error: 'Invalid item data', details });
-    }
-    console.error(err);
-    res.status(500).json({ error: 'Something went wrong on the server' });
+    handleDbError(err, res);
   }
 });
 

@@ -1,5 +1,5 @@
 @host = http://localhost:3000
-
+@itemId = 6af1ea54eb0ebd89ed32c828
 ### Create an item → 201
 POST {{host}}/api/items
 Content-Type: application/json
@@ -25,3 +25,12 @@ Content-Type: application/json
 
 ### List all items → 200
 GET {{host}}/api/items
+
+### Get one item → 200
+GET {{host}}/api/items/{{itemId}}
+
+### Get with an invalid id → 400
+GET {{host}}/api/items/banana
+
+### Get an id that doesn't exist → 404
+GET {{host}}/api/items/507f1f77bcf86cd799439011
