@@ -1,6 +1,11 @@
+### Create an item → 201
 @host = http://localhost:3000
 @itemId = 6af1ea54eb0ebd89ed32c828
-### Create an item → 201
+
+### Health check → 200
+GET {{host}}/api/health
+
+### Create an item → 201 (copy its _id into @itemId above)
 POST {{host}}/api/items
 Content-Type: application/json
 
@@ -23,6 +28,12 @@ Content-Type: application/json
   "date": "banana"
 }
 
+### Create with malformed JSON → 400
+POST {{host}}/api/items
+Content-Type: application/json
+
+{ "title": "broken json",
+
 ### List all items → 200
 GET {{host}}/api/items
 
@@ -34,7 +45,6 @@ GET {{host}}/api/items/banana
 
 ### Get an id that doesn't exist → 404
 GET {{host}}/api/items/507f1f77bcf86cd799439011
-
 
 ### Update one field with PATCH → 200
 PATCH {{host}}/api/items/{{itemId}}
@@ -85,12 +95,5 @@ DELETE {{host}}/api/items/{{itemId}}
 ### Delete with an invalid id → 400
 DELETE {{host}}/api/items/banana
 
-
-### Unknown route → should be 404 JSON
+### Unknown route → 404
 GET {{host}}/api/pizza
-
-### Malformed JSON → should be 400 JSON
-POST {{host}}/api/items
-Content-Type: application/json
-
-{ "title": "broken json",
