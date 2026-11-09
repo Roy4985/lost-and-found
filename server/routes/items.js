@@ -90,4 +90,17 @@ async function updateItem(req, res) {
 router.put('/:id', checkId, updateItem);
 router.patch('/:id', checkId, updateItem);
 
+
+// DELETE /api/items/:id → delete an item
+router.delete('/:id', checkId, async (req, res) => {
+  try {
+    const item = await Item.findByIdAndDelete(req.params.id);
+    if (!item) return res.status(404).json({ error: 'Item not found' });
+    res.sendStatus(204);
+  } catch (err) {
+    handleDbError(err, res);
+  }
+});
+
+
 export default router;

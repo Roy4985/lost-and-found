@@ -75,3 +75,12 @@ Content-Type: application/json
 {
   "title": "Nothing here"
 }
+
+### Delete → 204
+DELETE {{host}}/api/items/{{itemId}}
+
+### Delete the same item again → 404
+DELETE {{host}}/api/items/{{itemId}}
+
+### Delete with an invalid id → 400
+DELETE {{host}}/api/items/banana
