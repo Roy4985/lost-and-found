@@ -38,3 +38,7 @@ Requires **Node.js 20+**.
    npm run dev
    ```
    Open http://localhost:5173
+
+## Design
+- [Wireframes](docs/wireframes.svg)
+- [Database schema](docs/schema.md)

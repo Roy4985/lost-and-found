@@ -1,0 +1,179 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 980" width="1180" height="980" font-family="Arial, Helvetica, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10z" fill="#555"/>
+    </marker>
+  </defs>
+  <rect width="1180" height="980" fill="#ffffff"/>
+  <text x="40" y="48" font-size="22" font-weight="bold" fill="#222">Campus Lost &amp; Found — Wireframes</text>
+
+  <!-- Arrows between screens -->
+  <g stroke="#555" stroke-width="1.6" fill="none">
+    <path d="M340 270H440" marker-end="url(#arrow)"/>
+    <path d="M740 270H840" marker-end="url(#arrow)"/>
+    <path d="M560 470V560" marker-end="url(#arrow)"/>
+    <path d="M620 560V470" marker-end="url(#arrow)"/>
+    <path d="M960 470V560" marker-end="url(#arrow)"/>
+    <path d="M1020 560V470" marker-end="url(#arrow)"/>
+  </g>
+  <g font-size="11" fill="#444">
+    <text x="390" y="262" text-anchor="middle">logs in</text>
+    <text x="790" y="262" text-anchor="middle">clicks an item</text>
+    <text x="552" y="519" text-anchor="end">+ Post item</text>
+    <text x="628" y="519">saved → back to board</text>
+    <text x="952" y="519" text-anchor="end">claim sent</text>
+    <text x="1028" y="519">open item</text>
+  </g>
+
+  <!-- 1. Log in / Sign up -->
+  <text x="40" y="80" font-size="13" font-weight="bold" fill="#222">1 · Log in / Sign up</text>
+  <rect x="40" y="90" width="300" height="380" rx="6" fill="#fff" stroke="#333" stroke-width="1.5"/>
+  <rect x="40" y="90" width="300" height="28" fill="#eee" stroke="#333" stroke-width="1"/>
+  <text x="50" y="108" font-size="11" font-weight="bold" fill="#222">Lost &amp; Found</text>
+  <text x="330" y="108" font-size="10" fill="#555" text-anchor="end">Board · Post · Dashboard</text>
+  <text x="60" y="152" font-size="16" font-weight="bold" fill="#222">Log in</text>
+  <rect x="60" y="170" width="260" height="30" fill="#fff" stroke="#888"/>
+  <text x="70" y="190" font-size="11" fill="#888">Email</text>
+  <rect x="60" y="215" width="260" height="30" fill="#fff" stroke="#888"/>
+  <text x="70" y="235" font-size="11" fill="#888">Password</text>
+  <rect x="60" y="265" width="260" height="32" rx="4" fill="#333"/>
+  <text x="190" y="286" font-size="12" fill="#fff" text-anchor="middle">Log in</text>
+  <text x="190" y="325" font-size="11" fill="#333" text-anchor="middle" text-decoration="underline">No account? Sign up</text>
+  <text x="60" y="440" font-size="10" fill="#777">Sign up = same form + a Name field</text>
+
+  <!-- 2. Board -->
+  <text x="440" y="80" font-size="13" font-weight="bold" fill="#222">2 · Board (home)</text>
+  <rect x="440" y="90" width="300" height="380" rx="6" fill="#fff" stroke="#333" stroke-width="1.5"/>
+  <rect x="440" y="90" width="300" height="28" fill="#eee" stroke="#333" stroke-width="1"/>
+  <text x="450" y="108" font-size="11" font-weight="bold" fill="#222">Lost &amp; Found</text>
+  <text x="730" y="108" font-size="10" fill="#555" text-anchor="end">Board · Post · Dashboard</text>
+  <g font-size="10" fill="#333">
+    <rect x="455" y="130" width="50" height="24" rx="12" fill="#fff" stroke="#888"/>
+    <text x="480" y="146" text-anchor="middle">Lost</text>
+    <rect x="510" y="130" width="55" height="24" rx="12" fill="#fff" stroke="#888"/>
+    <text x="537" y="146" text-anchor="middle">Found</text>
+    <rect x="570" y="130" width="80" height="24" fill="#fff" stroke="#888"/>
+    <text x="610" y="146" text-anchor="middle">Category ▾</text>
+    <rect x="655" y="130" width="70" height="24" fill="#fff" stroke="#888"/>
+    <text x="664" y="146" fill="#888">Search…</text>
+  </g>
+  <rect x="455" y="164" width="100" height="24" rx="4" fill="#333"/>
+  <text x="505" y="180" font-size="11" fill="#fff" text-anchor="middle">+ Post item</text>
+  <g>
+    <rect x="455" y="200" width="130" height="120" fill="#fff" stroke="#888"/>
+    <rect x="465" y="210" width="110" height="60" fill="#f2f2f2" stroke="#bbb"/>
+    <path d="M465 210L575 270M575 210L465 270" stroke="#ccc"/>
+    <text x="465" y="288" font-size="11" fill="#222">Black wallet</text>
+    <text x="465" y="304" font-size="9" fill="#777">FOUND · Library</text>
+
+    <rect x="595" y="200" width="130" height="120" fill="#fff" stroke="#888"/>
+    <rect x="605" y="210" width="110" height="60" fill="#f2f2f2" stroke="#bbb"/>
+    <path d="M605 210L715 270M715 210L605 270" stroke="#ccc"/>
+    <text x="605" y="288" font-size="11" fill="#222">AirPods case</text>
+    <text x="605" y="304" font-size="9" fill="#777">LOST · Cafeteria</text>
+
+    <rect x="455" y="335" width="130" height="120" fill="#fff" stroke="#888"/>
+    <rect x="465" y="345" width="110" height="60" fill="#f2f2f2" stroke="#bbb"/>
+    <path d="M465 345L575 405M575 345L465 405" stroke="#ccc"/>
+    <text x="465" y="423" font-size="11" fill="#222">Car keys</text>
+    <text x="465" y="439" font-size="9" fill="#777">FOUND · Parking</text>
+
+    <rect x="595" y="335" width="130" height="120" fill="#fff" stroke="#888"/>
+    <rect x="605" y="345" width="110" height="60" fill="#f2f2f2" stroke="#bbb"/>
+    <path d="M605 345L715 405M715 345L605 405" stroke="#ccc"/>
+    <text x="605" y="423" font-size="11" fill="#222">Student ID</text>
+    <text x="605" y="439" font-size="9" fill="#777">LOST · Block B</text>
+  </g>
+
+  <!-- 3. Item page -->
+  <text x="840" y="80" font-size="13" font-weight="bold" fill="#222">3 · Item page</text>
+  <rect x="840" y="90" width="300" height="380" rx="6" fill="#fff" stroke="#333" stroke-width="1.5"/>
+  <rect x="840" y="90" width="300" height="28" fill="#eee" stroke="#333" stroke-width="1"/>
+  <text x="850" y="108" font-size="11" font-weight="bold" fill="#222">Lost &amp; Found</text>
+  <text x="1130" y="108" font-size="10" fill="#555" text-anchor="end">Board · Post · Dashboard</text>
+  <rect x="855" y="130" width="270" height="110" fill="#f2f2f2" stroke="#bbb"/>
+  <path d="M855 130L1125 240M1125 130L855 240" stroke="#ccc"/>
+  <text x="855" y="262" font-size="15" font-weight="bold" fill="#222">Black wallet</text>
+  <text x="855" y="280" font-size="10" fill="#777">FOUND · Cards &amp; IDs · Library · Nov 8</text>
+  <rect x="855" y="290" width="250" height="6" fill="#ddd"/>
+  <rect x="855" y="302" width="210" height="6" fill="#ddd"/>
+  <text x="855" y="334" font-size="11" font-weight="bold" fill="#222">Is it yours?</text>
+  <rect x="855" y="342" width="270" height="50" fill="#fff" stroke="#888"/>
+  <text x="865" y="362" font-size="10" fill="#888">Describe something only the owner knows</text>
+  <rect x="855" y="402" width="110" height="26" rx="4" fill="#333"/>
+  <text x="910" y="419" font-size="11" fill="#fff" text-anchor="middle">Send claim</text>
+  <text x="855" y="452" font-size="9" fill="#777">The poster sees the list of claims here instead</text>
+
+  <!-- 4. Post item -->
+  <text x="440" y="550" font-size="13" font-weight="bold" fill="#222">4 · Post item</text>
+  <rect x="440" y="560" width="300" height="380" rx="6" fill="#fff" stroke="#333" stroke-width="1.5"/>
+  <rect x="440" y="560" width="300" height="28" fill="#eee" stroke="#333" stroke-width="1"/>
+  <text x="450" y="578" font-size="11" font-weight="bold" fill="#222">Lost &amp; Found</text>
+  <text x="730" y="578" font-size="10" fill="#555" text-anchor="end">Board · Post · Dashboard</text>
+  <text x="455" y="612" font-size="15" font-weight="bold" fill="#222">Post an item</text>
+  <g font-size="10">
+    <rect x="455" y="622" width="60" height="22" rx="11" fill="#333"/>
+    <text x="485" y="637" fill="#fff" text-anchor="middle">Lost</text>
+    <rect x="520" y="622" width="60" height="22" rx="11" fill="#fff" stroke="#888"/>
+    <text x="550" y="637" fill="#333" text-anchor="middle">Found</text>
+    <rect x="455" y="654" width="270" height="24" fill="#fff" stroke="#888"/>
+    <text x="463" y="670" fill="#888">Title</text>
+    <rect x="455" y="686" width="270" height="24" fill="#fff" stroke="#888"/>
+    <text x="463" y="702" fill="#888">Category ▾</text>
+    <rect x="455" y="718" width="270" height="24" fill="#fff" stroke="#888"/>
+    <text x="463" y="734" fill="#888">Location on campus</text>
+    <rect x="455" y="750" width="270" height="24" fill="#fff" stroke="#888"/>
+    <text x="463" y="766" fill="#888">Date</text>
+    <rect x="455" y="782" width="270" height="40" fill="#fff" stroke="#888"/>
+    <text x="463" y="798" fill="#888">Description (optional)</text>
+    <rect x="455" y="830" width="270" height="30" fill="#f7f7f7" stroke="#888" stroke-dasharray="4 3"/>
+    <text x="590" y="849" fill="#666" text-anchor="middle">Upload photo (optional)</text>
+  </g>
+  <rect x="455" y="872" width="270" height="28" rx="4" fill="#333"/>
+  <text x="590" y="890" font-size="12" fill="#fff" text-anchor="middle">Post</text>
+
+  <!-- 5. My dashboard -->
+  <text x="840" y="550" font-size="13" font-weight="bold" fill="#222">5 · My dashboard</text>
+  <rect x="840" y="560" width="300" height="380" rx="6" fill="#fff" stroke="#333" stroke-width="1.5"/>
+  <rect x="840" y="560" width="300" height="28" fill="#eee" stroke="#333" stroke-width="1"/>
+  <text x="850" y="578" font-size="11" font-weight="bold" fill="#222">Lost &amp; Found</text>
+  <text x="1130" y="578" font-size="10" fill="#555" text-anchor="end">Board · Post · Dashboard</text>
+  <g font-size="10">
+    <rect x="855" y="600" width="85" height="24" fill="#fff" stroke="#888"/>
+    <text x="897" y="616" fill="#333" text-anchor="middle">My posts</text>
+    <rect x="944" y="600" width="100" height="24" fill="#333"/>
+    <text x="994" y="616" fill="#fff" text-anchor="middle">Claims received</text>
+    <rect x="1048" y="600" width="77" height="24" fill="#fff" stroke="#888"/>
+    <text x="1086" y="616" fill="#333" text-anchor="middle">Claims sent</text>
+  </g>
+  <rect x="855" y="636" width="270" height="78" fill="#fff" stroke="#888"/>
+  <text x="865" y="656" font-size="11" font-weight="bold" fill="#222">Black wallet</text>
+  <text x="865" y="672" font-size="10" fill="#555">Sara: "It has my student ID inside"</text>
+  <rect x="865" y="682" width="60" height="22" rx="4" fill="#333"/>
+  <text x="895" y="697" font-size="10" fill="#fff" text-anchor="middle">Accept</text>
+  <rect x="931" y="682" width="60" height="22" rx="4" fill="#fff" stroke="#888"/>
+  <text x="961" y="697" font-size="10" fill="#333" text-anchor="middle">Reject</text>
+  <rect x="855" y="724" width="270" height="78" fill="#fff" stroke="#888"/>
+  <text x="865" y="744" font-size="11" font-weight="bold" fill="#222">Black wallet</text>
+  <text x="865" y="760" font-size="10" fill="#555">Omar: "Brown leather, two cards"</text>
+  <rect x="865" y="770" width="60" height="22" rx="4" fill="#333"/>
+  <text x="895" y="785" font-size="10" fill="#fff" text-anchor="middle">Accept</text>
+  <rect x="931" y="770" width="60" height="22" rx="4" fill="#fff" stroke="#888"/>
+  <text x="961" y="785" font-size="10" fill="#333" text-anchor="middle">Reject</text>
+  <rect x="855" y="812" width="270" height="50" fill="#fff" stroke="#888"/>
+  <text x="865" y="832" font-size="11" font-weight="bold" fill="#222">Car keys</text>
+  <text x="865" y="848" font-size="10" fill="#555">No claims yet</text>
+  <text x="855" y="890" font-size="9" fill="#777">Accepting closes the item and rejects the other claims</text>
+
+  <!-- Notes -->
+  <rect x="40" y="560" width="340" height="180" rx="6" fill="#fafafa" stroke="#bbb"/>
+  <g font-size="11" fill="#333">
+    <text x="56" y="588" font-size="12" font-weight="bold">Notes</text>
+    <text x="56" y="612">• Navbar on every screen:</text>
+    <text x="66" y="628">Board · Post item · Dashboard · Log out</text>
+    <text x="56" y="652">• Posting, claiming and the dashboard need</text>
+    <text x="66" y="668">login, otherwise they redirect to Log in</text>
+    <text x="56" y="692">• The board and item pages are public</text>
+    <text x="56" y="716">• Low-fidelity: layout only, no final styling</text>
+  </g>
+</svg>
