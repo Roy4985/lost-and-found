@@ -69,4 +69,25 @@ router.post('/', async (req, res) => {
   }
 });
 
+// PUT and PATCH /api/items/:id → update only the fields that were sent
+async function updateItem(req, res) {
+  const changes = pickEditable(req.body);
+  if (Object.keys(changes).length === 0) {
+    return res.status(400).json({ error: 'Send at least one field to update' });
+  }
+  try {
+    const item = await Item.findByIdAndUpdate(req.params.id, changes, {
+      new: true,
+      runValidators: true,
+    });
+    if (!item) return res.status(404).json({ error: 'Item not found' });
+    res.json(item);
+  } catch (err) {
+    handleDbError(err, res);
+  }
+}
+
+router.put('/:id', checkId, updateItem);
+router.patch('/:id', checkId, updateItem);
+
 export default router;

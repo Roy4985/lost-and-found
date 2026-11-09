@@ -34,3 +34,44 @@ GET {{host}}/api/items/banana
 
 ### Get an id that doesn't exist → 404
 GET {{host}}/api/items/507f1f77bcf86cd799439011
+
+
+### Update one field with PATCH → 200
+PATCH {{host}}/api/items/{{itemId}}
+Content-Type: application/json
+
+{
+  "location": "Cafeteria"
+}
+
+### Update with PUT → 200
+PUT {{host}}/api/items/{{itemId}}
+Content-Type: application/json
+
+{
+  "title": "Brown leather wallet"
+}
+
+### Update with invalid data → 400
+PATCH {{host}}/api/items/{{itemId}}
+Content-Type: application/json
+
+{
+  "title": ""
+}
+
+### Update with no allowed fields → 400
+PATCH {{host}}/api/items/{{itemId}}
+Content-Type: application/json
+
+{
+  "status": "closed"
+}
+
+### Update an id that doesn't exist → 404
+PATCH {{host}}/api/items/507f1f77bcf86cd799439011
+Content-Type: application/json
+
+{
+  "title": "Nothing here"
+}
