@@ -1,0 +1,27 @@
+@host = http://localhost:3000
+
+### Create an item → 201
+POST {{host}}/api/items
+Content-Type: application/json
+
+{
+  "type": "found",
+  "title": "Black wallet",
+  "category": "cards-ids",
+  "location": "Library",
+  "date": "2026-11-08"
+}
+
+### Create with bad data → 400
+POST {{host}}/api/items
+Content-Type: application/json
+
+{
+  "type": "stolen",
+  "title": "",
+  "category": "food",
+  "date": "banana"
+}
+
+### List all items → 200
+GET {{host}}/api/items
