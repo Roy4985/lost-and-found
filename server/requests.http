@@ -1,6 +1,7 @@
 @host = http://localhost:3000
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2YWYzNjgzNTYwMjJhMDgzODUzN2MzZTMiLCJpYXQiOjE3OTQzMzg0NjIsImV4cCI6MTc5NDM0MjA2Mn0.bw2d1qSWC4t_xLg8PgK2nBMzhCq2p6CMccmD06TNS-4
-@itemId = 6af36ec8bbb82aa533ccf4c4
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2YWYzNjgzNTYwMjJhMDgzODUzN2MzZTMiLCJpYXQiOjE3OTQzNDA5MTgsImV4cCI6MTc5NDM0NDUxOH0.rXmbPi_pe3C4ErTBd6RLy9w0rsGOIJWa6epV5-IR1tw
+@itemId = 6af3784e1af419a502ef67c2
+@otherToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2YWYzNzg2NTFhZjQxOWE1MDJlZjY3YzMiLCJpYXQiOjE3OTQzNDA5NjUsImV4cCI6MTc5NDM0NDU2NX0.wNPN2Fy4dosm1tHMQGh9-NFhgxntqHPuG0nyPLiARrI
 
 ### Health check → 200
 GET {{host}}/api/health
@@ -195,6 +196,38 @@ Content-Type: application/json
 
 {
   "title": "Nothing here"
+}
+
+### A second user signs up → 201 (copy her token into @otherToken)
+POST {{host}}/api/auth/signup
+Content-Type: application/json
+
+{
+  "name": "Sara",
+  "email": "sara@example.com",
+  "password": "supersecret123"
+}
+
+### Sara tries to edit Roy's item → 403
+PATCH {{host}}/api/items/{{itemId}}
+Authorization: Bearer {{otherToken}}
+Content-Type: application/json
+
+{
+  "title": "Mine now"
+}
+
+### Sara tries to delete Roy's item → 403
+DELETE {{host}}/api/items/{{itemId}}
+Authorization: Bearer {{otherToken}}
+
+### Roy can still edit his own item → 200
+PATCH {{host}}/api/items/{{itemId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "title": "Black wallet (still mine)"
 }
 
 ### Delete without a token → 401

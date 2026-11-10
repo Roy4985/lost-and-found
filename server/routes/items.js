@@ -25,6 +25,21 @@ function checkId(req, res, next) {
   next();
 }
 
+// Middleware for edit and delete: loads the item and checks it belongs to the logged-in user.
+async function requireOwner(req, res, next) {
+  try {
+    const item = await Item.findById(req.params.id);
+    if (!item) return res.status(404).json({ error: 'Item not found' });
+    if (String(item.userId) !== req.userId) {
+      return res.status(403).json({ error: 'Only the person who posted this item can change it' });
+    }
+    req.item = item;
+    next();
+  } catch (err) {
+    handleDbError(err, res);
+  }
+}
+
 // GET /api/items → all items, newest first
 router.get('/', async (req, res) => {
   try {
@@ -56,33 +71,29 @@ router.post('/', requireAuth, async (req, res) => {
   }
 });
 
-// PUT and PATCH /api/items/:id → update only the fields that were sent
+// PUT and PATCH /api/items/:id → update only the fields that were sent (owner only)
 async function updateItem(req, res) {
   const changes = pickEditable(req.body);
   if (Object.keys(changes).length === 0) {
     return res.status(400).json({ error: 'Send at least one field to update' });
   }
   try {
-    const item = await Item.findByIdAndUpdate(req.params.id, changes, {
-      new: true,
-      runValidators: true,
-    });
-    if (!item) return res.status(404).json({ error: 'Item not found' });
-    res.json(item);
+    req.item.set(changes);
+    await req.item.save();
+    res.json(req.item);
   } catch (err) {
     handleDbError(err, res);
   }
 }
 
-router.put('/:id', requireAuth, checkId, updateItem);
-router.patch('/:id', requireAuth, checkId, updateItem);
+router.put('/:id', requireAuth, checkId, requireOwner, updateItem);
+router.patch('/:id', requireAuth, checkId, requireOwner, updateItem);
 
 
-// DELETE /api/items/:id → delete an item
-router.delete('/:id', requireAuth, checkId, async (req, res) => {
+// DELETE /api/items/:id → delete an item (owner only)
+router.delete('/:id', requireAuth, checkId, requireOwner, async (req, res) => {
   try {
-    const item = await Item.findByIdAndDelete(req.params.id);
-    if (!item) return res.status(404).json({ error: 'Item not found' });
+    await req.item.deleteOne();
     res.sendStatus(204);
   } catch (err) {
     handleDbError(err, res);
