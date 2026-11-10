@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import mongoose from 'mongoose';
 import { Item } from '../models/Item.js';
+import { handleDbError } from '../utils/handleDbError.js';
 
 const router = Router();
 
@@ -21,21 +22,6 @@ function checkId(req, res, next) {
     return res.status(400).json({ error: 'Invalid item id' });
   }
   next();
-}
-
-// Turns database errors into clean JSON answers.
-function handleDbError(err, res) {
-  if (err.name === 'ValidationError') {
-    const details = Object.values(err.errors).map((e) =>
-      e.name === 'CastError' ? `${e.path} has an invalid value` : e.message
-    );
-    return res.status(400).json({ error: 'Invalid item data', details });
-  }
-  if (err.name === 'CastError') {
-    return res.status(400).json({ error: `${err.path} has an invalid value` });
-  }
-  console.error(err);
-  return res.status(500).json({ error: 'Something went wrong on the server' });
 }
 
 // GET /api/items → all items, newest first

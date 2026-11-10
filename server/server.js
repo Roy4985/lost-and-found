@@ -3,6 +3,7 @@ import express from 'express';
 import cors from 'cors';
 import mongoose from 'mongoose';
 import itemsRouter from './routes/items.js';
+import authRouter from './routes/auth.js';
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
@@ -14,6 +15,7 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok' });
 });
 
+app.use('/api/auth', authRouter);
 app.use('/api/items', itemsRouter);
 
 // No route matched → 404

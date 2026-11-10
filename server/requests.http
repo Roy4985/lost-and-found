@@ -97,3 +97,71 @@ DELETE {{host}}/api/items/banana
 
 ### Unknown route → 404
 GET {{host}}/api/pizza
+
+### ===== AUTH =====
+
+### Sign up → 201 (returns a token)
+POST {{host}}/api/auth/signup
+Content-Type: application/json
+
+{
+  "name": "Roy",
+  "email": "roy@example.com",
+  "password": "supersecret123"
+}
+
+### Sign up with the same email → 409
+POST {{host}}/api/auth/signup
+Content-Type: application/json
+
+{
+  "name": "Roy again",
+  "email": "ROY@example.com",
+  "password": "supersecret123"
+}
+
+### Sign up with a short password → 400
+POST {{host}}/api/auth/signup
+Content-Type: application/json
+
+{
+  "name": "Sara",
+  "email": "sara@example.com",
+  "password": "123"
+}
+
+### Sign up with a bad email and no name → 400
+POST {{host}}/api/auth/signup
+Content-Type: application/json
+
+{
+  "email": "not-an-email",
+  "password": "supersecret123"
+}
+
+### Log in → 200 (returns a token)
+POST {{host}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "roy@example.com",
+  "password": "supersecret123"
+}
+
+### Log in with the wrong password → 401
+POST {{host}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "roy@example.com",
+  "password": "wrongpassword"
+}
+
+### Log in with an unknown email → 401 (same message)
+POST {{host}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "nobody@example.com",
+  "password": "supersecret123"
+}

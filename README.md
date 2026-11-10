@@ -115,7 +115,7 @@ Response `201`: the created item, including its new `_id`.
 Response `400` when data is invalid:
 ```json
 {
-  "error": "Invalid item data",
+  "error": "Invalid data",
   "details": ["type must be \"lost\" or \"found\"", "title is required"]
 }
 ```
