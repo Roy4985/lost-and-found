@@ -82,4 +82,65 @@ router.get('/claims/received', requireAuth, async (req, res) => {
   }
 });
 
+// Middleware for accept and reject: loads the claim and its item, then checks
+// that the logged-in user posted that item and that the claim is still pending.
+async function requirePosterOfClaim(req, res, next) {
+  try {
+    const claim = await Claim.findById(req.params.id);
+    if (!claim) return res.status(404).json({ error: 'Claim not found' });
+
+    const item = await Item.findById(claim.itemId);
+    if (!item) return res.status(404).json({ error: 'Item not found' });
+
+    if (String(item.userId) !== req.userId) {
+      return res.status(403).json({ error: 'Only the person who posted this item can answer its claims' });
+    }
+    if (claim.status !== 'pending') {
+      return res.status(409).json({ error: `This claim was already ${claim.status}` });
+    }
+    req.claim = claim;
+    req.item = item;
+    next();
+  } catch (err) {
+    handleDbError(err, res);
+  }
+}
+
+// PATCH /api/claims/:id/accept → accept a claim and close the item (poster only)
+router.patch('/claims/:id/accept', requireAuth, checkId, requirePosterOfClaim, async (req, res) => {
+  try {
+    // Close the item only if it is still open, in one database operation.
+    const item = await Item.findOneAndUpdate(
+      { _id: req.item._id, status: 'open' },
+      { status: 'closed' },
+      { new: true }
+    );
+    if (!item) return res.status(409).json({ error: 'This item is already closed' });
+
+    req.claim.status = 'accepted';
+    await req.claim.save();
+
+    // Every other pending claim on this item is rejected.
+    await Claim.updateMany(
+      { itemId: item._id, _id: { $ne: req.claim._id }, status: 'pending' },
+      { status: 'rejected' }
+    );
+
+    res.json({ claim: req.claim, item });
+  } catch (err) {
+    handleDbError(err, res);
+  }
+});
+
+// PATCH /api/claims/:id/reject → reject one claim; the item stays open (poster only)
+router.patch('/claims/:id/reject', requireAuth, checkId, requirePosterOfClaim, async (req, res) => {
+  try {
+    req.claim.status = 'rejected';
+    await req.claim.save();
+    res.json(req.claim);
+  } catch (err) {
+    handleDbError(err, res);
+  }
+});
+
 export default router;

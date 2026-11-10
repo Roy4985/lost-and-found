@@ -4,6 +4,7 @@ import { Item } from '../models/Item.js';
 import { handleDbError } from '../utils/handleDbError.js';
 import { requireAuth } from '../middleware/requireAuth.js';
 import { checkId } from '../middleware/checkId.js';
+import { Claim } from '../models/Claim.js';
 
 const router = Router();
 
@@ -86,6 +87,8 @@ router.patch('/:id', requireAuth, checkId, requireOwner, updateItem);
 // DELETE /api/items/:id → delete an item (owner only)
 router.delete('/:id', requireAuth, checkId, requireOwner, async (req, res) => {
   try {
+    await Claim.deleteMany({ itemId: req.item._id });
+    await req.item.deleteOne();
     await req.item.deleteOne();
     res.sendStatus(204);
   } catch (err) {
