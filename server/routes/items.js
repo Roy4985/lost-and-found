@@ -2,6 +2,7 @@ import { Router } from 'express';
 import mongoose from 'mongoose';
 import { Item } from '../models/Item.js';
 import { handleDbError } from '../utils/handleDbError.js';
+import { requireAuth } from '../middleware/requireAuth.js';
 
 const router = Router();
 
@@ -46,9 +47,9 @@ router.get('/:id', checkId, async (req, res) => {
 });
 
 // POST /api/items → create an item
-router.post('/', async (req, res) => {
+router.post('/', requireAuth, async (req, res) => {
   try {
-    const item = await Item.create(pickEditable(req.body));
+    const item = await Item.create({ ...pickEditable(req.body), userId: req.userId});
     res.status(201).json(item);
   } catch (err) {
     handleDbError(err, res);
@@ -73,12 +74,12 @@ async function updateItem(req, res) {
   }
 }
 
-router.put('/:id', checkId, updateItem);
-router.patch('/:id', checkId, updateItem);
+router.put('/:id', requireAuth, checkId, updateItem);
+router.patch('/:id', requireAuth, checkId, updateItem);
 
 
 // DELETE /api/items/:id → delete an item
-router.delete('/:id', checkId, async (req, res) => {
+router.delete('/:id', requireAuth, checkId, async (req, res) => {
   try {
     const item = await Item.findByIdAndDelete(req.params.id);
     if (!item) return res.status(404).json({ error: 'Item not found' });

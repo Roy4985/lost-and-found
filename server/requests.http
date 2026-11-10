@@ -1,102 +1,10 @@
-### Create an item → 201
 @host = http://localhost:3000
-@itemId = 6af1ea54eb0ebd89ed32c828
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2YWYzNjgzNTYwMjJhMDgzODUzN2MzZTMiLCJpYXQiOjE3OTQzMzg0NjIsImV4cCI6MTc5NDM0MjA2Mn0.bw2d1qSWC4t_xLg8PgK2nBMzhCq2p6CMccmD06TNS-4
+@itemId = 6af36ec8bbb82aa533ccf4c4
 
 ### Health check → 200
 GET {{host}}/api/health
 
-### Create an item → 201 (copy its _id into @itemId above)
-POST {{host}}/api/items
-Content-Type: application/json
-
-{
-  "type": "found",
-  "title": "Black wallet",
-  "category": "cards-ids",
-  "location": "Library",
-  "date": "2026-11-08"
-}
-
-### Create with bad data → 400
-POST {{host}}/api/items
-Content-Type: application/json
-
-{
-  "type": "stolen",
-  "title": "",
-  "category": "food",
-  "date": "banana"
-}
-
-### Create with malformed JSON → 400
-POST {{host}}/api/items
-Content-Type: application/json
-
-{ "title": "broken json",
-
-### List all items → 200
-GET {{host}}/api/items
-
-### Get one item → 200
-GET {{host}}/api/items/{{itemId}}
-
-### Get with an invalid id → 400
-GET {{host}}/api/items/banana
-
-### Get an id that doesn't exist → 404
-GET {{host}}/api/items/507f1f77bcf86cd799439011
-
-### Update one field with PATCH → 200
-PATCH {{host}}/api/items/{{itemId}}
-Content-Type: application/json
-
-{
-  "location": "Cafeteria"
-}
-
-### Update with PUT → 200
-PUT {{host}}/api/items/{{itemId}}
-Content-Type: application/json
-
-{
-  "title": "Brown leather wallet"
-}
-
-### Update with invalid data → 400
-PATCH {{host}}/api/items/{{itemId}}
-Content-Type: application/json
-
-{
-  "title": ""
-}
-
-### Update with no allowed fields → 400
-PATCH {{host}}/api/items/{{itemId}}
-Content-Type: application/json
-
-{
-  "status": "closed"
-}
-
-### Update an id that doesn't exist → 404
-PATCH {{host}}/api/items/507f1f77bcf86cd799439011
-Content-Type: application/json
-
-{
-  "title": "Nothing here"
-}
-
-### Delete → 204
-DELETE {{host}}/api/items/{{itemId}}
-
-### Delete the same item again → 404
-DELETE {{host}}/api/items/{{itemId}}
-
-### Delete with an invalid id → 400
-DELETE {{host}}/api/items/banana
-
-### Unknown route → 404
-GET {{host}}/api/pizza
 
 ### ===== AUTH =====
 
@@ -139,7 +47,7 @@ Content-Type: application/json
   "password": "supersecret123"
 }
 
-### Log in → 200 (returns a token)
+### Log in → 200 (copy the token into @token above)
 POST {{host}}/api/auth/login
 Content-Type: application/json
 
@@ -165,3 +73,147 @@ Content-Type: application/json
   "email": "nobody@example.com",
   "password": "supersecret123"
 }
+
+### Who am I → 200
+GET {{host}}/api/auth/me
+Authorization: Bearer {{token}}
+
+### Who am I without a token → 401
+GET {{host}}/api/auth/me
+
+### Who am I with a fake token → 401
+GET {{host}}/api/auth/me
+Authorization: Bearer abc.def.ghi
+
+
+### ===== ITEMS =====
+
+### Create an item → 201 (copy its _id into @itemId above)
+POST {{host}}/api/items
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "type": "found",
+  "title": "Black wallet",
+  "category": "cards-ids",
+  "location": "Library",
+  "date": "2026-11-08"
+}
+
+### Create without a token → 401
+POST {{host}}/api/items
+Content-Type: application/json
+
+{
+  "type": "found",
+  "title": "Black wallet",
+  "category": "cards-ids",
+  "location": "Library",
+  "date": "2026-11-08"
+}
+
+### Create with bad data → 400
+POST {{host}}/api/items
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "type": "stolen",
+  "title": "",
+  "category": "food",
+  "date": "banana"
+}
+
+### Create with malformed JSON → 400
+POST {{host}}/api/items
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "title": "broken json",
+
+### List all items → 200 (public, no token needed)
+GET {{host}}/api/items
+
+### Get one item → 200 (public)
+GET {{host}}/api/items/{{itemId}}
+
+### Get with an invalid id → 400
+GET {{host}}/api/items/banana
+
+### Get an id that doesn't exist → 404
+GET {{host}}/api/items/507f1f77bcf86cd799439011
+
+### Update one field with PATCH → 200
+PATCH {{host}}/api/items/{{itemId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "location": "Cafeteria"
+}
+
+### Update with PUT → 200
+PUT {{host}}/api/items/{{itemId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "title": "Brown leather wallet"
+}
+
+### Update without a token → 401
+PATCH {{host}}/api/items/{{itemId}}
+Content-Type: application/json
+
+{
+  "title": "Not logged in"
+}
+
+### Update with invalid data → 400
+PATCH {{host}}/api/items/{{itemId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "title": ""
+}
+
+### Update with no allowed fields → 400
+PATCH {{host}}/api/items/{{itemId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "status": "closed"
+}
+
+### Update an id that doesn't exist → 404
+PATCH {{host}}/api/items/507f1f77bcf86cd799439011
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "title": "Nothing here"
+}
+
+### Delete without a token → 401
+DELETE {{host}}/api/items/{{itemId}}
+
+### Delete → 204
+DELETE {{host}}/api/items/{{itemId}}
+Authorization: Bearer {{token}}
+
+### Delete the same item again → 404
+DELETE {{host}}/api/items/{{itemId}}
+Authorization: Bearer {{token}}
+
+### Delete with an invalid id → 400
+DELETE {{host}}/api/items/banana
+Authorization: Bearer {{token}}
+
+
+### ===== OTHER =====
+
+### Unknown route → 404
+GET {{host}}/api/pizza

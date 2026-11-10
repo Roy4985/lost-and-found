@@ -4,7 +4,7 @@ export const CATEGORIES = ['electronics', 'keys', 'cards-ids', 'bags', 'clothing
 
 const itemSchema = new mongoose.Schema(
     {
-        userId: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
+        userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
         
         type: {
             type: String,

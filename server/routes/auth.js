@@ -3,6 +3,7 @@ import bcrypt from 'bcrypt';
 import { User } from '../models/User.js';
 import { signToken } from '../auth/token.js';
 import { handleDbError } from '../utils/handleDbError.js';
+import { requireAuth } from '../middleware/requireAuth.js';
 
 const router = Router();
 
@@ -43,6 +44,17 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
     res.json({ token: signToken(user), user });
+  } catch (err) {
+    handleDbError(err, res);
+  }
+});
+
+// GET /api/auth/me → the logged-in user (login required)
+router.get('/me', requireAuth, async (req, res) => {
+  try {
+    const user = await User.findById(req.userId);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    res.json(user);
   } catch (err) {
     handleDbError(err, res);
   }
