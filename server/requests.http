@@ -2,7 +2,7 @@
 @token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2YWYzNjgzNTYwMjJhMDgzODUzN2MzZTMiLCJpYXQiOjE3OTQzNDA5MTgsImV4cCI6MTc5NDM0NDUxOH0.rXmbPi_pe3C4ErTBd6RLy9w0rsGOIJWa6epV5-IR1tw
 @itemId = 6af3784e1af419a502ef67c2
 @otherToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2YWYzNzg2NTFhZjQxOWE1MDJlZjY3YzMiLCJpYXQiOjE3OTQzNDA5NjUsImV4cCI6MTc5NDM0NDU2NX0.wNPN2Fy4dosm1tHMQGh9-NFhgxntqHPuG0nyPLiARrI
-
+@claimId = PASTE_A_CLAIM_ID_HERE
 ### Health check → 200
 GET {{host}}/api/health
 
@@ -245,6 +245,90 @@ Authorization: Bearer {{token}}
 DELETE {{host}}/api/items/banana
 Authorization: Bearer {{token}}
 
+### ===== CLAIMS =====
+
+### Sara claims Roy's item → 201 (copy the claim's _id into @claimId)
+POST {{host}}/api/items/{{itemId}}/claims
+Authorization: Bearer {{otherToken}}
+Content-Type: application/json
+
+{
+  "message": "It's mine, my student ID is inside"
+}
+
+### Sara claims it again while the first is pending → 409
+POST {{host}}/api/items/{{itemId}}/claims
+Authorization: Bearer {{otherToken}}
+Content-Type: application/json
+
+{
+  "message": "Second try"
+}
+
+### Roy claims his own item → 403
+POST {{host}}/api/items/{{itemId}}/claims
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "message": "Trying to claim my own post"
+}
+
+### Claim without a token → 401
+POST {{host}}/api/items/{{itemId}}/claims
+Content-Type: application/json
+
+{
+  "message": "Not logged in"
+}
+
+### Claim with no message → 400
+POST {{host}}/api/items/{{itemId}}/claims
+Authorization: Bearer {{otherToken}}
+Content-Type: application/json
+
+{}
+
+### Claim with an invalid item id → 400
+POST {{host}}/api/items/banana/claims
+Authorization: Bearer {{otherToken}}
+Content-Type: application/json
+
+{
+  "message": "Hello"
+}
+
+### Claim an item that doesn't exist → 404
+POST {{host}}/api/items/507f1f77bcf86cd799439011/claims
+Authorization: Bearer {{otherToken}}
+Content-Type: application/json
+
+{
+  "message": "Hello"
+}
+
+### Roy sees the claims on his item → 200 (with Sara's name)
+GET {{host}}/api/items/{{itemId}}/claims
+Authorization: Bearer {{token}}
+
+### Sara tries to see the claims on Roy's item → 403
+GET {{host}}/api/items/{{itemId}}/claims
+Authorization: Bearer {{otherToken}}
+
+### Sara's sent claims → 200 (with the item's title)
+GET {{host}}/api/claims/sent
+Authorization: Bearer {{otherToken}}
+
+### Roy's received claims → 200 (item title + Sara's name)
+GET {{host}}/api/claims/received
+Authorization: Bearer {{token}}
+
+### Roy's sent claims → 200 (empty list)
+GET {{host}}/api/claims/sent
+Authorization: Bearer {{token}}
+
+### Received claims without a token → 401
+GET {{host}}/api/claims/received
 
 ### ===== OTHER =====
 

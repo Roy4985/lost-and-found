@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import { Item } from '../models/Item.js';
 import { handleDbError } from '../utils/handleDbError.js';
 import { requireAuth } from '../middleware/requireAuth.js';
+import { checkId } from '../middleware/checkId.js';
 
 const router = Router();
 
@@ -15,14 +16,6 @@ function pickEditable(body = {}) {
     if (body[field] !== undefined) data[field] = body[field];
   }
   return data;
-}
-
-// Middleware for every /:id route. Rejects ids that can't possibly exist.
-function checkId(req, res, next) {
-  if (!mongoose.isValidObjectId(req.params.id)) {
-    return res.status(400).json({ error: 'Invalid item id' });
-  }
-  next();
 }
 
 // Middleware for edit and delete: loads the item and checks it belongs to the logged-in user.

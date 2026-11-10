@@ -102,7 +102,7 @@ Response `200`:
 curl http://localhost:3000/api/items/6730f1c2e4b7a1d3f0c8e2a9
 ```
 Response `200`: one item (same shape as above).
-Response `400`: `{"error": "Invalid item id"}` · Response `404`: `{"error": "Item not found"}`
+Response `400`: `{"error": "Invalis id"}` · Response `404`: `{"error": "Item not found"}`
 
 #### POST /api/items
 ```
