@@ -1,15 +1,20 @@
 @host = http://localhost:3000
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2YWYzNjgzNTYwMjJhMDgzODUzN2MzZTMiLCJpYXQiOjE3OTQzNDA5MTgsImV4cCI6MTc5NDM0NDUxOH0.rXmbPi_pe3C4ErTBd6RLy9w0rsGOIJWa6epV5-IR1tw
-@itemId = 6af3784e1af419a502ef67c2
-@otherToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2YWYzNzg2NTFhZjQxOWE1MDJlZjY3YzMiLCJpYXQiOjE3OTQzNDA5NjUsImV4cCI6MTc5NDM0NDU2NX0.wNPN2Fy4dosm1tHMQGh9-NFhgxntqHPuG0nyPLiARrI
+@token = PASTE_ROYS_TOKEN_HERE
+@otherToken = PASTE_SARAS_TOKEN_HERE
+@thirdToken = PASTE_OMARS_TOKEN_HERE
+@itemId = PASTE_AN_ITEM_ID_HERE
 @claimId = PASTE_A_CLAIM_ID_HERE
+
+
 ### Health check → 200
 GET {{host}}/api/health
 
 
-### ===== AUTH =====
+############################################################
+# AUTH
+############################################################
 
-### Sign up → 201 (returns a token)
+### Sign up Roy → 201 (copy the token into @token). If Roy exists, use "Log in Roy" below
 POST {{host}}/api/auth/signup
 Content-Type: application/json
 
@@ -19,7 +24,7 @@ Content-Type: application/json
   "password": "supersecret123"
 }
 
-### Sign up with the same email → 409
+### Sign up with the same email (different capitals) → 409
 POST {{host}}/api/auth/signup
 Content-Type: application/json
 
@@ -34,12 +39,12 @@ POST {{host}}/api/auth/signup
 Content-Type: application/json
 
 {
-  "name": "Sara",
-  "email": "sara@example.com",
+  "name": "Test",
+  "email": "test@example.com",
   "password": "123"
 }
 
-### Sign up with a bad email and no name → 400
+### Sign up with a bad email and no name → 400 (both problems listed)
 POST {{host}}/api/auth/signup
 Content-Type: application/json
 
@@ -48,7 +53,7 @@ Content-Type: application/json
   "password": "supersecret123"
 }
 
-### Log in → 200 (copy the token into @token above)
+### Log in Roy → 200 (copy the token into @token)
 POST {{host}}/api/auth/login
 Content-Type: application/json
 
@@ -66,7 +71,7 @@ Content-Type: application/json
   "password": "wrongpassword"
 }
 
-### Log in with an unknown email → 401 (same message)
+### Log in with an unknown email → 401 (same message as wrong password)
 POST {{host}}/api/auth/login
 Content-Type: application/json
 
@@ -75,7 +80,7 @@ Content-Type: application/json
   "password": "supersecret123"
 }
 
-### Who am I → 200
+### Who am I → 200 (Roy's name and email, no passwordHash)
 GET {{host}}/api/auth/me
 Authorization: Bearer {{token}}
 
@@ -86,10 +91,50 @@ GET {{host}}/api/auth/me
 GET {{host}}/api/auth/me
 Authorization: Bearer abc.def.ghi
 
+### Sign up Sara → 201 (copy the token into @otherToken). If Sara exists, use "Log in Sara"
+POST {{host}}/api/auth/signup
+Content-Type: application/json
 
-### ===== ITEMS =====
+{
+  "name": "Sara",
+  "email": "sara@example.com",
+  "password": "supersecret123"
+}
 
-### Create an item → 201 (copy its _id into @itemId above)
+### Log in Sara → 200 (copy the token into @otherToken)
+POST {{host}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "sara@example.com",
+  "password": "supersecret123"
+}
+
+### Sign up Omar → 201 (copy the token into @thirdToken). If Omar exists, use "Log in Omar"
+POST {{host}}/api/auth/signup
+Content-Type: application/json
+
+{
+  "name": "Omar",
+  "email": "omar@example.com",
+  "password": "supersecret123"
+}
+
+### Log in Omar → 200 (copy the token into @thirdToken)
+POST {{host}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "omar@example.com",
+  "password": "supersecret123"
+}
+
+
+############################################################
+# ITEMS
+############################################################
+
+### Roy creates an item → 201 (copy its _id into @itemId; the response shows Roy's userId)
 POST {{host}}/api/items
 Authorization: Bearer {{token}}
 Content-Type: application/json
@@ -97,6 +142,7 @@ Content-Type: application/json
 {
   "type": "found",
   "title": "Black wallet",
+  "description": "Found near the printers",
   "category": "cards-ids",
   "location": "Library",
   "date": "2026-11-08"
@@ -114,7 +160,7 @@ Content-Type: application/json
   "date": "2026-11-08"
 }
 
-### Create with bad data → 400
+### Create with bad data → 400 (details list every problem)
 POST {{host}}/api/items
 Authorization: Bearer {{token}}
 Content-Type: application/json
@@ -145,7 +191,7 @@ GET {{host}}/api/items/banana
 ### Get an id that doesn't exist → 404
 GET {{host}}/api/items/507f1f77bcf86cd799439011
 
-### Update one field with PATCH → 200
+### Roy updates one field with PATCH → 200 (other fields unchanged)
 PATCH {{host}}/api/items/{{itemId}}
 Authorization: Bearer {{token}}
 Content-Type: application/json
@@ -154,7 +200,7 @@ Content-Type: application/json
   "location": "Cafeteria"
 }
 
-### Update with PUT → 200
+### Roy updates with PUT → 200
 PUT {{host}}/api/items/{{itemId}}
 Authorization: Bearer {{token}}
 Content-Type: application/json
@@ -171,6 +217,15 @@ Content-Type: application/json
   "title": "Not logged in"
 }
 
+### Sara tries to edit Roy's item → 403
+PATCH {{host}}/api/items/{{itemId}}
+Authorization: Bearer {{otherToken}}
+Content-Type: application/json
+
+{
+  "title": "Mine now"
+}
+
 ### Update with invalid data → 400
 PATCH {{host}}/api/items/{{itemId}}
 Authorization: Bearer {{token}}
@@ -180,7 +235,7 @@ Content-Type: application/json
   "title": ""
 }
 
-### Update with no allowed fields → 400
+### Update with no allowed fields → 400 (status can't be changed directly)
 PATCH {{host}}/api/items/{{itemId}}
 Authorization: Bearer {{token}}
 Content-Type: application/json
@@ -198,54 +253,17 @@ Content-Type: application/json
   "title": "Nothing here"
 }
 
-### A second user signs up → 201 (copy her token into @otherToken)
-POST {{host}}/api/auth/signup
-Content-Type: application/json
-
-{
-  "name": "Sara",
-  "email": "sara@example.com",
-  "password": "supersecret123"
-}
-
-### Sara tries to edit Roy's item → 403
-PATCH {{host}}/api/items/{{itemId}}
-Authorization: Bearer {{otherToken}}
-Content-Type: application/json
-
-{
-  "title": "Mine now"
-}
-
 ### Sara tries to delete Roy's item → 403
 DELETE {{host}}/api/items/{{itemId}}
 Authorization: Bearer {{otherToken}}
 
-### Roy can still edit his own item → 200
-PATCH {{host}}/api/items/{{itemId}}
-Authorization: Bearer {{token}}
-Content-Type: application/json
-
-{
-  "title": "Black wallet (still mine)"
-}
-
 ### Delete without a token → 401
 DELETE {{host}}/api/items/{{itemId}}
 
-### Delete → 204
-DELETE {{host}}/api/items/{{itemId}}
-Authorization: Bearer {{token}}
 
-### Delete the same item again → 404
-DELETE {{host}}/api/items/{{itemId}}
-Authorization: Bearer {{token}}
-
-### Delete with an invalid id → 400
-DELETE {{host}}/api/items/banana
-Authorization: Bearer {{token}}
-
-### ===== CLAIMS =====
+############################################################
+# CLAIMS: sending
+############################################################
 
 ### Sara claims Roy's item → 201 (copy the claim's _id into @claimId)
 POST {{host}}/api/items/{{itemId}}/claims
@@ -256,7 +274,7 @@ Content-Type: application/json
   "message": "It's mine, my student ID is inside"
 }
 
-### Sara claims it again while the first is pending → 409
+### Sara claims it again while the first is pending → 409 (rule 1)
 POST {{host}}/api/items/{{itemId}}/claims
 Authorization: Bearer {{otherToken}}
 Content-Type: application/json
@@ -307,6 +325,11 @@ Content-Type: application/json
   "message": "Hello"
 }
 
+
+############################################################
+# CLAIMS: lists
+############################################################
+
 ### Roy sees the claims on his item → 200 (with Sara's name)
 GET {{host}}/api/items/{{itemId}}/claims
 Authorization: Bearer {{token}}
@@ -315,7 +338,7 @@ Authorization: Bearer {{token}}
 GET {{host}}/api/items/{{itemId}}/claims
 Authorization: Bearer {{otherToken}}
 
-### Sara's sent claims → 200 (with the item's title)
+### Sara's sent claims → 200 (with the item's title and status)
 GET {{host}}/api/claims/sent
 Authorization: Bearer {{otherToken}}
 
@@ -330,7 +353,101 @@ Authorization: Bearer {{token}}
 ### Received claims without a token → 401
 GET {{host}}/api/claims/received
 
-### ===== OTHER =====
+
+############################################################
+# CLAIMS: accept and reject (run these in order, it's one story)
+############################################################
+
+### 1. Sara tries to accept her own claim → 403 (only the poster can, rule 2)
+PATCH {{host}}/api/claims/{{claimId}}/accept
+Authorization: Bearer {{otherToken}}
+
+### 2. Roy rejects Sara's claim → 200 (status: rejected, item still open)
+PATCH {{host}}/api/claims/{{claimId}}/reject
+Authorization: Bearer {{token}}
+
+### 3. Roy rejects it again → 409 (already rejected)
+PATCH {{host}}/api/claims/{{claimId}}/reject
+Authorization: Bearer {{token}}
+
+### 4. Sara claims again → 201 (a rejected claim doesn't block her). Copy this NEW _id into @claimId
+POST {{host}}/api/items/{{itemId}}/claims
+Authorization: Bearer {{otherToken}}
+Content-Type: application/json
+
+{
+  "message": "It really is mine: there's a photo of my dog inside"
+}
+
+### 5. Omar also claims the item → 201
+POST {{host}}/api/items/{{itemId}}/claims
+Authorization: Bearer {{thirdToken}}
+Content-Type: application/json
+
+{
+  "message": "I think it's mine, brown leather"
+}
+
+### 6. Roy accepts Sara's new claim → 200 (claim accepted, item closed, rule 3)
+PATCH {{host}}/api/claims/{{claimId}}/accept
+Authorization: Bearer {{token}}
+
+### 7. Roy accepts it again → 409 (already accepted)
+PATCH {{host}}/api/claims/{{claimId}}/accept
+Authorization: Bearer {{token}}
+
+### 8. Roy checks his item's claims → 200 (Sara accepted, Omar rejected automatically)
+GET {{host}}/api/items/{{itemId}}/claims
+Authorization: Bearer {{token}}
+
+### 9. Omar tries to claim the closed item → 409
+POST {{host}}/api/items/{{itemId}}/claims
+Authorization: Bearer {{thirdToken}}
+Content-Type: application/json
+
+{
+  "message": "One more try"
+}
+
+### 10. The item on the board is now closed → 200 (status: closed)
+GET {{host}}/api/items/{{itemId}}
+
+### Accept without a token → 401
+PATCH {{host}}/api/claims/{{claimId}}/accept
+
+### Accept with an invalid claim id → 400
+PATCH {{host}}/api/claims/banana/accept
+Authorization: Bearer {{token}}
+
+### Accept a claim that doesn't exist → 404
+PATCH {{host}}/api/claims/507f1f77bcf86cd799439011/accept
+Authorization: Bearer {{token}}
+
+
+############################################################
+# DELETE (run last: it removes the item and its claims)
+############################################################
+
+### Roy deletes his item → 204 (its claims are deleted too)
+DELETE {{host}}/api/items/{{itemId}}
+Authorization: Bearer {{token}}
+
+### Delete the same item again → 404
+DELETE {{host}}/api/items/{{itemId}}
+Authorization: Bearer {{token}}
+
+### Delete with an invalid id → 400
+DELETE {{host}}/api/items/banana
+Authorization: Bearer {{token}}
+
+### Sara's sent claims after the delete → 200 (empty: the claims went with the item)
+GET {{host}}/api/claims/sent
+Authorization: Bearer {{otherToken}}
+
+
+############################################################
+# OTHER
+############################################################
 
 ### Unknown route → 404
 GET {{host}}/api/pizza

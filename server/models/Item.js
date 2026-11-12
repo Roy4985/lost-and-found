@@ -21,9 +21,9 @@ const itemSchema = new mongoose.Schema(
 
         description: {
             type: String,
-            required: false,
             maxlength: [1000, 'description must be at most 1000 characters'],
             default: '', 
+            trim: true,
         },
 
         category: {

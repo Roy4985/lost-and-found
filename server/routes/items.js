@@ -1,5 +1,4 @@
 import { Router } from 'express';
-import mongoose from 'mongoose';
 import { Item } from '../models/Item.js';
 import { handleDbError } from '../utils/handleDbError.js';
 import { requireAuth } from '../middleware/requireAuth.js';
@@ -88,7 +87,6 @@ router.patch('/:id', requireAuth, checkId, requireOwner, updateItem);
 router.delete('/:id', requireAuth, checkId, requireOwner, async (req, res) => {
   try {
     await Claim.deleteMany({ itemId: req.item._id });
-    await req.item.deleteOne();
     await req.item.deleteOne();
     res.sendStatus(204);
   } catch (err) {
