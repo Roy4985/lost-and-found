@@ -43,6 +43,16 @@ router.get('/', async (req, res) => {
   }
 });
 
+// GET /api/items/mine → items I posted, newest first (login required)
+router.get('/mine', requireAuth, async (req, res) => {
+  try {
+    const items = await Item.find({ userId: req.userId }).sort({ createdAt: -1 });
+    res.json(items);
+  } catch (err) {
+    handleDbError(err, res);
+  }
+});
+
 // GET /api/items/:id → one item
 router.get('/:id', checkId, async (req, res) => {
   try {
