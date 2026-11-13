@@ -1,23 +1,29 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext.js';
 
+
 export default function LoginPage() {
-  const { login } = useAuth();
+  const { login, user} = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from ?? '/';
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
+  // Already logged in (e.g. after pressing Back): no need for this page.
+  if (user) return <Navigate to={from} replace />;
+  
   async function handleSubmit(e) {
     e.preventDefault();
     setError('');
     setSubmitting(true);
     try {
       await login(email, password);
-      navigate('/');
+      navigate(from, { replace: true });
     } catch (err) {
       setError(err.message);
     } finally {

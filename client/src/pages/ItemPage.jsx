@@ -82,7 +82,7 @@ export default function ItemPage() {
         <>
           {!user && isOpen && (
             <p>
-              <Link to="/login">Log in</Link> to claim this item.
+              <Link to="/login" state={{ from: `/items/${item._id}` }}>Log in</Link> to claim this item.
             </p>
           )}
           {user && !isPoster && isOpen && <ClaimForm itemId={item._id} />}

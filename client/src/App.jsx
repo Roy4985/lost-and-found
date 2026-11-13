@@ -8,6 +8,7 @@ import LoginPage from './pages/LoginPage.jsx';
 import SignupPage from './pages/SignupPage.jsx';
 import DashboardPage from './pages/DashboardPage.jsx';
 import NotFoundPage from './pages/NotFoundPage.jsx';
+import RequireAuth from './components/RequireAuth.jsx';
 
 export default function App() {
   return (
@@ -17,11 +18,11 @@ export default function App() {
         <Routes>
           <Route path="/" element={<BoardPage />} />
           <Route path="/items/:id" element={<ItemPage />} />
-          <Route path="/items/:id/edit" element={<EditItemPage />} />
-          <Route path="/post" element={<PostItemPage />} />
+          <Route path="/items/:id/edit" element={<RequireAuth><EditItemPage /></RequireAuth>} />
+          <Route path="/post" element={<RequireAuth><PostItemPage /></RequireAuth>} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
-          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/dashboard" element={<RequireAuth><DashboardPage /></RequireAuth>} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </main>

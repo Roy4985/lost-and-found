@@ -7,7 +7,7 @@ export default function Navbar() {
 
   function handleLogout() {
     logout();
-    navigate('/');
+    navigate('/login');
   }
 
   return (

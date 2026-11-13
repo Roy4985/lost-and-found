@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext.js';
 
 export default function SignupPage() {
-  const { signup } = useAuth();
+  const { signup, user } = useAuth();
   const navigate = useNavigate();
 
   const [name, setName] = useState('');
@@ -12,6 +12,9 @@ export default function SignupPage() {
   const [error, setError] = useState('');
   const [details, setDetails] = useState([]);
   const [submitting, setSubmitting] = useState(false);
+
+  // Already logged in (e.g. after pressing Back): no need for this page.
+  if (user) return <Navigate to="/" replace />;
 
   async function handleSubmit(e) {
     e.preventDefault();
