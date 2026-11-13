@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { apiFetch } from '../api.js';
+import { formatDate } from '../constants.js';
 
 export default function ClaimList({ itemId, itemIsOpen, onItemClosed }) {
   const [claims, setClaims] = useState([]);
@@ -46,7 +47,7 @@ export default function ClaimList({ itemId, itemIsOpen, onItemClosed }) {
       {claims.map((claim) => (
         <div key={claim._id} className="claim">
           <p>
-            <strong>{claim.userId.name}</strong> · {new Date(claim.createdAt).toLocaleDateString()} ·{' '}
+            <strong>{claim.userId.name}</strong> · {formatDate(claim.createdAt)} ·{' '}
             <span className={`status status-${claim.status}`}>{claim.status}</span>
           </p>
           <p>{claim.message}</p>

@@ -1,20 +1,20 @@
 import { useEffect, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';     // NEW: useNavigate
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { apiFetch } from '../api.js';
 import { useAuth } from '../auth/AuthContext.js';
-import { categoryLabel } from '../constants.js';                    // NEW
+import { categoryLabel, formatDate } from '../constants.js';
 import ClaimForm from '../components/ClaimForm.jsx';
 import ClaimList from '../components/ClaimList.jsx';
 
 export default function ItemPage() {
   const { id } = useParams();
   const { user, checking } = useAuth();
-  const navigate = useNavigate();                                   // NEW
+  const navigate = useNavigate();
 
   const [item, setItem] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [deleteError, setDeleteError] = useState('');               // NEW
+  const [deleteError, setDeleteError] = useState('');
 
   useEffect(() => {
     async function loadItem() {
@@ -35,7 +35,6 @@ export default function ItemPage() {
     loadItem();
   }, [id]);
 
-  // NEW: delete the item, after asking for confirmation
   async function handleDelete() {
     if (!window.confirm('Delete this item? Its claims will be deleted too.')) return;
     try {
@@ -61,15 +60,18 @@ export default function ItemPage() {
 
   return (
     <section className="item-page">
-      <Link to="/">← Back to the board</Link>
+      <Link to="/" className="back-link">← Back to the board</Link>
 
-      <p>{item.type === 'lost' ? 'LOST' : 'FOUND'} · {categoryLabel(item.category)}</p>
+      {item.photoUrl && <img className="item-photo" src={item.photoUrl} alt={`Photo of ${item.title}`} />}
+
+      <span className={`type type-${item.type}`}>{item.type === 'lost' ? 'Lost' : 'Found'}</span>
       <h1>{item.title}</h1>
-      <p>{item.location} · {new Date(item.date).toLocaleDateString()}</p>
+      <p className="meta">
+        {item.location} · {categoryLabel(item.category)} · {formatDate(item.date)}
+      </p>
       {item.description && <p>{item.description}</p>}
-      {!isOpen && <p><strong>This item has been returned to its owner.</strong></p>}
+      {!isOpen && <p className="returned">This item is back with its owner</p>}
 
-      {/* NEW: the poster can edit or delete */}
       {isPoster && (
         <div className="actions">
           <Link to={`/items/${item._id}/edit`}>Edit</Link>

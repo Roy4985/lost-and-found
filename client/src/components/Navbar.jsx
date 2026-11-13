@@ -12,14 +12,14 @@ export default function Navbar() {
 
   return (
     <header className="navbar">
-      <Link to="/" className="brand">Lost &amp; Found</Link>
+      <Link to="/" className="brand">lost+found</Link>
       <nav>
         <NavLink to="/" end>Board</NavLink>
         {!checking && user && (
           <>
-            <NavLink to="/post">Post item</NavLink>
             <NavLink to="/dashboard">Dashboard</NavLink>
             <span>Hi, {user.name}</span>
+            <NavLink to="/post" className="nav-cta">+ Post item</NavLink>
             <button onClick={handleLogout}>Log out</button>
           </>
         )}

@@ -28,9 +28,11 @@ export default function DashboardPage() {
         ))}
       </div>
 
-      {tab === 'posts' && <MyPosts />}
-      {tab === 'received' && <ReceivedClaims />}
-      {tab === 'sent' && <SentClaims />}
+      <div className="tab-panel">
+        {tab === 'posts' && <MyPosts />}
+        {tab === 'received' && <ReceivedClaims />}
+        {tab === 'sent' && <SentClaims />}
+      </div>
     </section>
   );
 }

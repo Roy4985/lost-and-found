@@ -11,7 +11,7 @@ export default function BoardPage() {
 
   useEffect(() => {
     async function loadItems() {
-        try {
+      try {
         setItems(await apiFetch('/api/items'));
       } catch {
         setError('Could not load items. Is the server running?');
@@ -33,34 +33,42 @@ export default function BoardPage() {
 
   return (
     <section>
-      <h1>Campus Lost &amp; Found</h1>
+      <h1>Lost it? Found it? Post it.</h1>
+      <p className="lead">Everything here was lost or found on campus. Claim what's yours.</p>
 
-      <input
-        type="text"
-        placeholder="Search by title…"
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-      />
-      <button onClick={() => setSearch('')}>Clear</button>
+      <div className="toolbar">
+        <div className="search">
+          <input
+            type="text"
+            placeholder="What are you looking for?"
+            aria-label="Search by title"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+          <button className="chip" onClick={() => setSearch('')}>Clear</button>
+        </div>
 
-      <div>
-        <button onClick={() => setTypeFilter('all')}>
-          {typeFilter === 'all' ? <strong>All</strong> : 'All'}
-        </button>
-        <button onClick={() => setTypeFilter('lost')}>
-          {typeFilter === 'lost' ? <strong>Lost</strong> : 'Lost'}
-        </button>
-        <button onClick={() => setTypeFilter('found')}>
-          {typeFilter === 'found' ? <strong>Found</strong> : 'Found'}
-        </button>
+        <div className="filters">
+          <button className={typeFilter === 'all' ? 'chip active' : 'chip'} onClick={() => setTypeFilter('all')}>
+            All
+          </button>
+          <button className={typeFilter === 'lost' ? 'chip chip-lost active' : 'chip chip-lost'} onClick={() => setTypeFilter('lost')}>
+            Lost
+          </button>
+          <button className={typeFilter === 'found' ? 'chip chip-found active' : 'chip chip-found'} onClick={() => setTypeFilter('found')}>
+            Found
+          </button>
+        </div>
       </div>
 
-      <p>Showing {visibleItems.length} of {items.length} items</p>
-      {visibleItems.length === 0 && <p>No items found.</p>}
+      <p className="count">Showing {visibleItems.length} of {items.length} items</p>
+      {visibleItems.length === 0 && <p>No items match. Try another search, or post what you lost.</p>}
 
-      {visibleItems.map((item) => (
-        <ItemCard key={item._id} item={item} />
-      ))}
+      <div className="grid">
+        {visibleItems.map((item) => (
+          <ItemCard key={item._id} item={item} />
+        ))}
+      </div>
     </section>
   );
 }
