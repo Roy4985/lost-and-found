@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import ItemCard from '../components/ItemCard.jsx';
-
-const API_URL = import.meta.env.VITE_API_URL;
+import { apiFetch } from '../api.js';
 
 export default function BoardPage() {
   const [items, setItems] = useState([]);
@@ -12,11 +11,9 @@ export default function BoardPage() {
 
   useEffect(() => {
     async function loadItems() {
-      try {
-        const res = await fetch(`${API_URL}/api/items`);
-        if (!res.ok) throw new Error(`Server answered ${res.status}`);
-        setItems(await res.json());
-      } catch (err) {
+        try {
+        setItems(await apiFetch('/api/items'));
+      } catch {
         setError('Could not load items. Is the server running?');
       } finally {
         setLoading(false);
