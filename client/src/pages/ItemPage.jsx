@@ -1,17 +1,20 @@
 import { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';     // NEW: useNavigate
 import { apiFetch } from '../api.js';
 import { useAuth } from '../auth/AuthContext.js';
+import { categoryLabel } from '../constants.js';                    // NEW
 import ClaimForm from '../components/ClaimForm.jsx';
 import ClaimList from '../components/ClaimList.jsx';
 
 export default function ItemPage() {
   const { id } = useParams();
   const { user, checking } = useAuth();
+  const navigate = useNavigate();                                   // NEW
 
   const [item, setItem] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [deleteError, setDeleteError] = useState('');               // NEW
 
   useEffect(() => {
     async function loadItem() {
@@ -32,6 +35,17 @@ export default function ItemPage() {
     loadItem();
   }, [id]);
 
+  // NEW: delete the item, after asking for confirmation
+  async function handleDelete() {
+    if (!window.confirm('Delete this item? Its claims will be deleted too.')) return;
+    try {
+      await apiFetch(`/api/items/${item._id}`, { method: 'DELETE' });
+      navigate('/');
+    } catch (err) {
+      setDeleteError(err.message);
+    }
+  }
+
   if (loading) return <p>Loading item…</p>;
   if (error) {
     return (
@@ -49,11 +63,20 @@ export default function ItemPage() {
     <section className="item-page">
       <Link to="/">← Back to the board</Link>
 
-      <p>{item.type === 'lost' ? 'LOST' : 'FOUND'} · {item.category}</p>
+      <p>{item.type === 'lost' ? 'LOST' : 'FOUND'} · {categoryLabel(item.category)}</p>
       <h1>{item.title}</h1>
       <p>{item.location} · {new Date(item.date).toLocaleDateString()}</p>
       {item.description && <p>{item.description}</p>}
       {!isOpen && <p><strong>This item has been returned to its owner.</strong></p>}
+
+      {/* NEW: the poster can edit or delete */}
+      {isPoster && (
+        <div className="actions">
+          <Link to={`/items/${item._id}/edit`}>Edit</Link>
+          <button onClick={handleDelete}>Delete</button>
+        </div>
+      )}
+      {deleteError && <p className="error">{deleteError}</p>}
 
       {!checking && (
         <>
