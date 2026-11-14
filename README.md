@@ -4,6 +4,12 @@ A web app where students post items they lost or found on campus, and owners cla
 
 A finder posts the item with where and when it was found. The owner sends a **claim** with proof that it's theirs. The poster accepts one claim, which closes the item.
 
+## Live demo
+- **App:** https://lost-and-found-one-theta.vercel.app
+- **API:** https://lost-and-found-api-ystk.onrender.com/api/health
+
+The API runs on Render's free plan, which sleeps after 15 minutes without traffic. The first request after that can take 30–60 seconds while it wakes up.
+
 ## Tech stack
 - **Frontend:** React (Vite)
 - **Backend:** Node.js + Express (REST API)
@@ -13,6 +19,11 @@ A finder posts the item with where and when it was found. The owner sends a **cl
 ## Project structure
 ```
 client/                       React frontend  → http://localhost:5173
+  src/pages/                  one component per screen (board, item, post, login…)
+  src/components/             reusable pieces (navbar, item card, claim list…)
+  src/auth/                   login state shared through React context
+  src/api.js                  fetch helper that adds the login token
+  vercel.json                 sends every path to index.html (client-side routing)
 server/                       Express API     → http://localhost:3000
   server.js                   app setup, middleware, database connection
   models/                     User, Item, Claim schemas (fields, types, rules)
@@ -81,6 +92,7 @@ Tokens expire after 1 hour; log in again to get a new one.
 | POST | `/api/auth/login` | public | Log in | 200 |
 | GET | `/api/auth/me` | logged in | The current user | 200 |
 | GET | `/api/items` | public | List all items, newest first | 200 |
+| GET | `/api/items/mine` | logged in | Items I posted | 200 |
 | GET | `/api/items/:id` | public | Get one item | 200 |
 | POST | `/api/items` | logged in | Post an item | 201 |
 | PUT / PATCH | `/api/items/:id` | poster only | Update the fields sent | 200 |
@@ -185,6 +197,12 @@ Response `200`:
   }
 ]
 ```
+
+#### GET /api/items/mine
+```
+curl http://localhost:3000/api/items/mine -H "Authorization: Bearer <token>"
+```
+Response `200`: the items posted by the logged-in user, newest first (same shape as above). Errors: `401` not logged in.
 
 #### GET /api/items/:id
 ```
@@ -313,6 +331,15 @@ Response `200`: the claim with `"status": "rejected"`. The item stays open.
 Errors: same as accept.
 
 ---
+
+## Deployment
+| Part | Host | Settings |
+|---|---|---|
+| Backend | Render (Web Service) | Root directory `server` · build `npm install` · start `npm start` · environment: `MONGODB_URI`, `JWT_SECRET`, `CLIENT_ORIGIN` (the frontend's address, no trailing `/`) |
+| Frontend | Vercel | Root directory `client` · framework Vite · environment: `VITE_API_URL` (the backend's address, no trailing `/`) |
+| Database | MongoDB Atlas | Network access allows `0.0.0.0/0`, since Render has no fixed IP |
+
+Every push to `main` redeploys both automatically. `VITE_API_URL` is built into the frontend, so changing it needs a redeploy on Vercel.
 
 ## Testing every route
 `server/requests.http` has a request for every route and error case. Open it in VS Code with the **REST Client** extension:
