@@ -4,6 +4,7 @@ import { handleDbError } from '../utils/handleDbError.js';
 import { requireAuth } from '../middleware/requireAuth.js';
 import { checkId } from '../middleware/checkId.js';
 import { Claim } from '../models/Claim.js';
+import { deletePhotoByUrl } from '../models/Photo.js';
 
 const router = Router();
 
@@ -81,8 +82,12 @@ async function updateItem(req, res) {
     return res.status(400).json({ error: 'Send at least one field to update' });
   }
   try {
+    const oldPhotoUrl = req.item.photoUrl;
     req.item.set(changes);
     await req.item.save();
+    if (oldPhotoUrl && oldPhotoUrl !== req.item.photoUrl) {
+      await deletePhotoByUrl(oldPhotoUrl); // the old photo was replaced or removed
+    }
     res.json(req.item);
   } catch (err) {
     handleDbError(err, res);
@@ -97,6 +102,7 @@ router.patch('/:id', requireAuth, checkId, requireOwner, updateItem);
 router.delete('/:id', requireAuth, checkId, requireOwner, async (req, res) => {
   try {
     await Claim.deleteMany({ itemId: req.item._id });
+    await deletePhotoByUrl(req.item.photoUrl);
     await req.item.deleteOne();
     res.sendStatus(204);
   } catch (err) {

@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { apiFetch } from '../api.js';
 import { useAuth } from '../auth/AuthContext.js';
 import { categoryLabel, formatDate } from '../constants.js';
+import { photoSrc } from '../photos.js';
 import ClaimForm from '../components/ClaimForm.jsx';
 import ClaimList from '../components/ClaimList.jsx';
 
@@ -62,7 +63,7 @@ export default function ItemPage() {
     <section className="item-page">
       <Link to="/" className="back-link">← Back to the board</Link>
 
-      {item.photoUrl && <img className="item-photo" src={item.photoUrl} alt={`Photo of ${item.title}`} />}
+      {item.photoUrl && <img className="item-photo" src={photoSrc(item.photoUrl)} alt={`Photo of ${item.title}`} />}
 
       <span className={`type type-${item.type}`}>{item.type === 'lost' ? 'Lost' : 'Found'}</span>
       <h1>{item.title}</h1>

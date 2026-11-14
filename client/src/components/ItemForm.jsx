@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { CATEGORIES } from '../constants.js';
+import { photoSrc, uploadPhoto } from '../photos.js';
 
 // Today's date as 'YYYY-MM-DD', the format a date input uses.
 function today() {
@@ -21,13 +22,31 @@ export default function ItemForm({ initialItem, submitLabel, onSubmit }) {
     location: initialItem?.location ?? '',
     date: initialItem?.date?.slice(0, 10) ?? today(),
     description: initialItem?.description ?? '',
+    photoUrl: initialItem?.photoUrl ?? '',
   });
   const [error, setError] = useState('');
   const [details, setDetails] = useState([]);
   const [submitting, setSubmitting] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [photoError, setPhotoError] = useState('');
 
   function update(field, value) {
     setForm((current) => ({ ...current, [field]: value }));
+  }
+
+  async function handlePhoto(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    setPhotoError('');
+    setUploading(true);
+    try {
+      update('photoUrl', await uploadPhoto(file));
+    } catch (err) {
+      setPhotoError(err.message);
+    } finally {
+      setUploading(false);
+      e.target.value = '';
+    }
   }
 
   async function handleSubmit(e) {
@@ -128,6 +147,25 @@ export default function ItemForm({ initialItem, submitLabel, onSubmit }) {
         rows={4}
       />
 
+      <label htmlFor="photo">Photo (optional)</label>
+      {form.photoUrl && (
+        <div className="photo-preview">
+          <img src={photoSrc(form.photoUrl)} alt="The photo that will be posted" />
+          <button type="button" className="chip" onClick={() => update('photoUrl', '')}>
+            Remove photo
+          </button>
+        </div>
+      )}
+      <input
+        id="photo"
+        type="file"
+        accept="image/png, image/jpeg, image/webp"
+        onChange={handlePhoto}
+        disabled={uploading}
+      />
+      {uploading && <p>Uploading photo…</p>}
+      {photoError && <p className="error">{photoError}</p>}
+
       {error && <p className="error">{error}</p>}
       {details.length > 0 && (
         <ul className="error">
@@ -137,7 +175,7 @@ export default function ItemForm({ initialItem, submitLabel, onSubmit }) {
         </ul>
       )}
 
-      <button type="submit" disabled={submitting}>
+      <button type="submit" disabled={submitting || uploading}>
         {submitting ? 'Saving…' : submitLabel}
       </button>
     </form>

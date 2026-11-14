@@ -39,7 +39,12 @@ const itemSchema = new mongoose.Schema(
             maxlength: [100, 'location must be at most 100 characters'],
         },
         date: { type: Date, required: [true, 'date is required'] },
-        photoUrl: { type: String, trim: true, default: '' },
+        photoUrl: {
+            type: String,
+            trim: true,
+            default: '',
+            match: [/^\/api\/photos\/[a-f0-9]{24}$/, 'photoUrl must be a photo uploaded to this app'],
+        },
         status: { type: String, enum: ['open', 'closed'], default: 'open' },
     },
     { timestamps: true }

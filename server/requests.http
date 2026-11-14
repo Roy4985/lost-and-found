@@ -4,6 +4,7 @@
 @thirdToken = PASTE_OMARS_TOKEN_HERE
 @itemId = PASTE_AN_ITEM_ID_HERE
 @claimId = PASTE_A_CLAIM_ID_HERE
+@photoUrl = PASTE_A_PHOTO_URL_HERE
 
 
 ### Health check → 200
@@ -422,6 +423,55 @@ Authorization: Bearer {{token}}
 ### Accept a claim that doesn't exist → 404
 PATCH {{host}}/api/claims/507f1f77bcf86cd799439011/accept
 Authorization: Bearer {{token}}
+
+
+############################################################
+# PHOTOS
+############################################################
+
+### Upload a photo without a token → 401
+POST {{host}}/api/photos
+Content-Type: image/jpeg
+
+< ./test-photo.jpg
+
+### Upload something that is not an image → 400
+POST {{host}}/api/photos
+Authorization: Bearer {{token}}
+Content-Type: text/plain
+
+hello
+
+### Roy uploads a photo → 201 (copy the url into @photoUrl, e.g. /api/photos/66f...)
+POST {{host}}/api/photos
+Authorization: Bearer {{token}}
+Content-Type: image/jpeg
+
+< ./test-photo.jpg
+
+### Get the photo back → 200 (VS Code shows the image)
+GET {{host}}{{photoUrl}}
+
+### A photo that does not exist → 404
+GET {{host}}/api/photos/000000000000000000000000
+
+### Roy puts the photo on his item → 200
+PATCH {{host}}/api/items/{{itemId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "photoUrl": "{{photoUrl}}"
+}
+
+### An outside link is refused → 400 (photoUrl must be a photo uploaded to this app)
+PATCH {{host}}/api/items/{{itemId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "photoUrl": "https://example.com/cat.jpg"
+}
 
 
 ############################################################

@@ -253,6 +253,39 @@ ul.error {
   padding-left: 1.2rem;
 }
 
+/* Photo field */
+input[type='file'] {
+  font: inherit;
+  padding: 0.5rem 0;
+}
+
+input[type='file']::file-selector-button {
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  margin-right: 0.75rem;
+  padding: 0.5rem 1rem;
+  border: var(--border);
+  border-radius: var(--radius);
+  background: var(--yellow);
+  color: var(--ink);
+}
+
+.photo-preview {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.75rem;
+  margin-bottom: 0.25rem;
+}
+
+.photo-preview img {
+  max-width: 100%;
+  max-height: 220px;
+  border: var(--border);
+  border-radius: var(--radius);
+}
+
 /* Login, signup, post and edit pages: one white sheet */
 .auth-page,
 .form-page {

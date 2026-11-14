@@ -1,11 +1,12 @@
 import { Link } from 'react-router-dom';
 import { categoryLabel, formatDate } from '../constants.js';
+import { photoSrc } from '../photos.js';
 
 export default function ItemCard({ item }) {
   return (
     <Link to={`/items/${item._id}`} className="card">
       {item.photoUrl ? (
-        <img className="card-photo" src={item.photoUrl} alt={`Photo of ${item.title}`} />
+        <img className="card-photo" src={photoSrc(item.photoUrl)} alt={`Photo of ${item.title}`} />
       ) : (
         <div className="card-photo card-photo-empty">
           <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor"
