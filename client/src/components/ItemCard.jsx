@@ -26,6 +26,7 @@ export default function ItemCard({ item }) {
         <h3>{item.title}</h3>
         <p>{item.location}</p>
         <p>{categoryLabel(item.category)}</p>
+        {item.userId?.name && <p className="card-poster">Posted by {item.userId.name}</p>}
         {item.status === 'closed' && <p className="returned">Back with its owner</p>}
       </div>
     </Link>

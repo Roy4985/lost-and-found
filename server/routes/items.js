@@ -34,10 +34,12 @@ async function requireOwner(req, res, next) {
   }
 }
 
-// GET /api/items → all items, newest first
+// GET /api/items → open items for the board, newest first, with the poster's name
 router.get('/', async (req, res) => {
   try {
-    const items = await Item.find().sort({ createdAt: -1 });
+    const items = await Item.find({ status: 'open' })
+      .sort({ createdAt: -1 })
+      .populate('userId', 'name');
     res.json(items);
   } catch (err) {
     handleDbError(err, res);
@@ -54,10 +56,10 @@ router.get('/mine', requireAuth, async (req, res) => {
   }
 });
 
-// GET /api/items/:id → one item
+// GET /api/items/:id → one item (open or closed), with the poster's name
 router.get('/:id', checkId, async (req, res) => {
   try {
-    const item = await Item.findById(req.params.id);
+    const item = await Item.findById(req.params.id).populate('userId', 'name');
     if (!item) return res.status(404).json({ error: 'Item not found' });
     res.json(item);
   } catch (err) {

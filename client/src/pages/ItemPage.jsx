@@ -56,7 +56,8 @@ export default function ItemPage() {
     );
   }
 
-  const isPoster = user && item.userId === user._id;
+  // userId comes with the poster's name: { _id, name }
+  const isPoster = user && item.userId?._id === user._id;
   const isOpen = item.status === 'open';
 
   return (
@@ -70,6 +71,7 @@ export default function ItemPage() {
       <p className="meta">
         {item.location} · {categoryLabel(item.category)} · {formatDate(item.date)}
       </p>
+      {item.userId?.name && <p className="meta">Posted by <strong>{item.userId.name}</strong></p>}
       {item.description && <p>{item.description}</p>}
       {!isOpen && <p className="returned">This item is back with its owner</p>}
 

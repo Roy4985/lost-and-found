@@ -404,6 +404,11 @@ input[type='file']::file-selector-button {
   color: var(--text-2);
 }
 
+.card .card-poster {
+  margin-top: 0.6rem;
+  color: var(--muted);
+}
+
 /* Lost / Found label */
 .type {
   display: inline-block;
@@ -436,7 +441,8 @@ input[type='file']::file-selector-button {
 }
 
 .back-link {
-  display: inline-block;
+  display: block;
+  width: fit-content;
   margin-bottom: 1.5rem;
   font-weight: 600;
 }

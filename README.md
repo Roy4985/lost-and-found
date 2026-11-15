@@ -12,7 +12,7 @@ The API runs on Render's free plan, which sleeps after 15 minutes without traffi
 
 ## Features
 - **Accounts:** sign up and log in; passwords are hashed, and the login token keeps you signed in
-- **Board:** every lost and found item, newest first, with a title search and a Lost / Found filter
+- **Board:** every open lost and found item, newest first, with the poster's name, a title search and a Lost / Found filter. Items that went back to their owner leave the board (they stay in the poster's dashboard)
 - **Post an item:** lost or found, with title, category, location, date, description and an optional photo
 - **Edit and delete:** only the person who posted an item can change or remove it
 - **Claims:** the owner sends a claim with a detail only they would know (what's inside, a mark, a serial number)
@@ -125,7 +125,7 @@ Tokens expire after 1 hour; log in again to get a new one.
 | POST | `/api/auth/signup` | public | Create an account | 201 |
 | POST | `/api/auth/login` | public | Log in | 200 |
 | GET | `/api/auth/me` | logged in | The current user | 200 |
-| GET | `/api/items` | public | List all items, newest first | 200 |
+| GET | `/api/items` | public | List open items (the board), newest first | 200 |
 | GET | `/api/items/mine` | logged in | Items I posted | 200 |
 | GET | `/api/items/:id` | public | Get one item | 200 |
 | POST | `/api/items` | logged in | Post an item | 201 |
@@ -214,12 +214,12 @@ Response `200`: the logged-in user. Errors: `401` missing or invalid token.
 ```
 curl http://localhost:3000/api/items
 ```
-Response `200`:
+Response `200`: only **open** items. Closed items (back with their owner) are left out. `userId` comes with the poster's name (Mongoose `populate`):
 ```json
 [
   {
     "_id": "6731b0c1d2e3f4a5b6c7d8e9",
-    "userId": "6731a2b3c4d5e6f708192a3b",
+    "userId": { "_id": "6731a2b3c4d5e6f708192a3b", "name": "Roy" },
     "type": "found",
     "title": "Black wallet",
     "description": "Found near the printers",
@@ -238,13 +238,13 @@ Response `200`:
 ```
 curl http://localhost:3000/api/items/mine -H "Authorization: Bearer <token>"
 ```
-Response `200`: the items posted by the logged-in user, newest first (same shape as above). Errors: `401` not logged in.
+Response `200`: every item posted by the logged-in user, open and closed, newest first. Same shape as above, except `userId` is just the id. Errors: `401` not logged in.
 
 #### GET /api/items/:id
 ```
 curl http://localhost:3000/api/items/6731b0c1d2e3f4a5b6c7d8e9
 ```
-Response `200`: one item (same shape as above). Errors: `400 {"error": "Invalid id"}` · `404 {"error": "Item not found"}`.
+Response `200`: one item, open or closed, with the poster's name (same shape as `GET /api/items`). Errors: `400 {"error": "Invalid id"}` · `404 {"error": "Item not found"}`.
 
 #### POST /api/items
 ```

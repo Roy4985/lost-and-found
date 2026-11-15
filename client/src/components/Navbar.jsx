@@ -12,7 +12,7 @@ export default function Navbar() {
 
   return (
     <header className="navbar">
-      <Link to="/" className="brand">lost+found</Link>
+      <Link to="/" className="brand">Campus Lost & Found</Link>
       <nav>
         <NavLink to="/" end>Board</NavLink>
         {!checking && user && (

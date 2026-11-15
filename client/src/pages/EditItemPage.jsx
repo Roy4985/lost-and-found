@@ -36,7 +36,7 @@ export default function EditItemPage() {
   if (loading || checking) return <p>Loading…</p>;
   if (error) return <p>{error}</p>;
 
-  if (!user || item.userId !== user._id) {
+  if (!user || item.userId?._id !== user._id) {
     return (
       <section>
         <p>You can only edit items you posted.</p>

@@ -114,7 +114,7 @@ router.patch('/claims/:id/accept', requireAuth, checkId, requirePosterOfClaim, a
       { _id: req.item._id, status: 'open' },
       { status: 'closed' },
       { new: true }
-    );
+    ).populate('userId', 'name');
     if (!item) return res.status(409).json({ error: 'This item is already closed' });
 
     req.claim.status = 'accepted';

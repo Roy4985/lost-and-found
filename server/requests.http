@@ -180,7 +180,7 @@ Content-Type: application/json
 
 { "title": "broken json",
 
-### List all items → 200 (public, no token needed)
+### List open items, with the poster's name → 200 (public, no token needed)
 GET {{host}}/api/items
 
 ### Get one item → 200 (public)

@@ -13,6 +13,7 @@ const wallet = {
   date: '2026-11-12T00:00:00.000Z',
   photoUrl: '',
   status: 'open',
+  userId: { _id: '6731d5e6f7a8b9c0d1e2f3a1', name: 'Roy' },
 };
 
 // ItemCard contains a <Link>, and a Link only works inside a router.
@@ -35,6 +36,7 @@ test('shows the item details and links to its page', () => {
   expect(screen.getByText('Library, 2nd floor')).toBeTruthy();
   expect(screen.getByText('Cards & IDs')).toBeTruthy();
   expect(screen.getByText('No photo')).toBeTruthy();
+  expect(screen.getByText('Posted by Roy')).toBeTruthy();
   expect(screen.getByRole('link').getAttribute('href')).toBe('/items/6731d5e6f7a8b9c0d1e2f3a4');
 
   // The item is still open, so there is no "returned" bar.
