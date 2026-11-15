@@ -10,6 +10,20 @@ A finder posts the item with where and when it was found. The owner sends a **cl
 
 The API runs on Render's free plan, which sleeps after 15 minutes without traffic. The first request after that can take 30–60 seconds while it wakes up.
 
+## Features
+- **Accounts:** sign up and log in; passwords are hashed, and the login token keeps you signed in
+- **Board:** every lost and found item, newest first, with a title search and a Lost / Found filter
+- **Post an item:** lost or found, with title, category, location, date, description and an optional photo
+- **Edit and delete:** only the person who posted an item can change or remove it
+- **Claims:** the owner sends a claim with a detail only they would know (what's inside, a mark, a serial number)
+- **Claim rules (the custom logic):**
+  - one pending claim per user per item
+  - you can't claim your own item, or an item that's already closed
+  - only the poster can accept or reject a claim
+  - accepting a claim closes the item and rejects every other pending claim on it
+- **Dashboard:** three tabs — My posts, Claims received (accept or reject), Claims sent (with their status)
+- **Responsive:** works on phones and desktops
+
 ## Tech stack
 - **Frontend:** React (Vite)
 - **Backend:** Node.js + Express (REST API)
@@ -17,11 +31,26 @@ The API runs on Render's free plan, which sleeps after 15 minutes without traffi
 - **Authentication:** email + password hashed with bcrypt; JWT sent as a Bearer token
 - **Photos:** shrunk in the browser (canvas, max 1200 px wide), stored in MongoDB as binary data
 
+## Architecture
+```
+Browser ── React app (Vercel)
+              │  fetch() with JSON, login token in the Authorization header
+              ▼
+           Express API (Render) ── routes → middleware (login, owner checks) → Mongoose models
+              │
+              ▼
+           MongoDB Atlas ── users, items, claims, photos
+```
+- The **React app** only displays data and sends requests. It keeps the login token in `localStorage` and shares the logged-in user with every page through React context.
+- The **API** holds every rule. It checks the token on protected routes, checks ownership before edits, and enforces the claim rules, so they can't be skipped by calling the API directly.
+- **MongoDB** stores four collections. Items and claims point to users by id; a claim also points to its item. A unique index on claims is a second guard against duplicate pending claims.
+
 ## Project structure
 ```
 client/                       React frontend  → http://localhost:5173
   src/pages/                  one component per screen (board, item, post, login…)
   src/components/             reusable pieces (navbar, item card, claim list…)
+  src/components/ItemCard.test.jsx  automated test of the item card
   src/auth/                   login state shared through React context
   src/api.js                  fetch helper that adds the login token
   src/photos.js               shrinks a photo in the browser and uploads it
@@ -373,14 +402,22 @@ Errors: `400` invalid id · `404` photo not found.
 
 Every push to `main` redeploys both automatically. `VITE_API_URL` is built into the frontend, so changing it needs a redeploy on Vercel.
 
-## Automated test
+## Automated tests
+**Backend** — `server/tests/claims.test.js`
 ```
 cd server
 npm test
 ```
-`tests/claims.test.js` checks the main claim rule: a user who already has a pending claim on an item gets `409` if they claim it again. The test runs against an empty MongoDB started in memory (`mongodb-memory-server-core`), so it never touches the real database. The first run downloads MongoDB once, which can take a minute.
-
+Checks the main claim rule: a user who already has a pending claim on an item gets `409` if they claim it again. It runs against an empty MongoDB started in memory (`mongodb-memory-server-core`), so it never touches the real database. The first run downloads MongoDB once (several hundred MB), then it takes a few seconds.
 Tools: Node's built-in test runner (`node:test`), and `supertest` to send requests to the app without starting a server.
+
+**Frontend** — `client/src/components/ItemCard.test.jsx`
+```
+cd client
+npm test
+```
+Renders the item card with a sample item and checks it shows the title, the Lost/Found label, the location, the category and the right link, and that the "Back with its owner" bar appears only once the item is closed.
+Tools: Vitest (the test runner made for Vite), React Testing Library to render the component, and jsdom as a fake browser page.
 
 ## Testing every route by hand
 `server/requests.http` has a request for every route and error case. Open it in VS Code with the **REST Client** extension:
