@@ -32,6 +32,13 @@ async function signup(name, email) {
   return res.body.token;
 }
 
+test('posting an item without logging in is refused with 401', async () => {
+  const res = await request(app)
+    .post('/api/items')
+    .send({ type: 'found', title: 'Black wallet', category: 'cards-ids', location: 'Library', date: '2026-11-10' });
+  assert.equal(res.status, 401);
+});
+
 test('a user cannot send a second pending claim on the same item', async () => {
   const roy = await signup('Roy', 'roy@test.com');
   const sara = await signup('Sara', 'sara@test.com');

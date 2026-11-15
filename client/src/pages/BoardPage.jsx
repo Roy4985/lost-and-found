@@ -8,6 +8,13 @@ export default function BoardPage() {
   const [error, setError] = useState('');
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState('all');
+  const [slow, setSlow] = useState(false);
+
+  // If loading takes more than 3 seconds, the free server is probably waking up.
+  useEffect(() => {
+    const timer = setTimeout(() => setSlow(true), 3000);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     async function loadItems() {
@@ -24,11 +31,15 @@ export default function BoardPage() {
 
   const visibleItems = items.filter((item) => {
     const matchesType = typeFilter === 'all' || item.type === typeFilter;
-    const matchesSearch = item.title.toLowerCase().includes(search.toLowerCase());
+    // Search the title, the location and the description
+    const text = `${item.title} ${item.location} ${item.description ?? ''}`.toLowerCase();
+    const matchesSearch = text.includes(search.trim().toLowerCase());
     return matchesType && matchesSearch;
   });
 
-  if (loading) return <p>Loading items…</p>;
+  if (loading) {
+    return <p>{slow ? 'Waking up the server, this can take up to a minute…' : 'Loading items…'}</p>;
+  }
   if (error) return <p>{error}</p>;
 
   return (
@@ -41,7 +52,7 @@ export default function BoardPage() {
           <input
             type="text"
             placeholder="What are you looking for?"
-            aria-label="Search by title"
+            aria-label="Search by title, place or description"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />

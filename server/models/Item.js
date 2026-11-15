@@ -50,4 +50,8 @@ const itemSchema = new mongoose.Schema(
     { timestamps: true }
 );
 
+// Indexes: let MongoDB jump straight to the right items instead of reading them all.
+itemSchema.index({ status: 1, createdAt: -1 }); // the board: open items, newest first
+itemSchema.index({ userId: 1, createdAt: -1 }); // my posts: items I posted, newest first
+
 export const Item = mongoose.model('Item', itemSchema);

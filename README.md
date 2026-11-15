@@ -12,7 +12,7 @@ The API runs on Render's free plan, which sleeps after 15 minutes without traffi
 
 ## Features
 - **Accounts:** sign up and log in; passwords are hashed, and the login token keeps you signed in
-- **Board:** every open lost and found item, newest first, with the poster's name, a title search and a Lost / Found filter. Items that went back to their owner leave the board (they stay in the poster's dashboard)
+- **Board:** every open lost and found item, newest first, with the poster's name, a search (title, place and description) and a Lost / Found filter. Items that went back to their owner leave the board (they stay in the poster's dashboard)
 - **Post an item:** lost or found, with title, category, location, date, description and an optional photo
 - **Edit and delete:** only the person who posted an item can change or remove it
 - **Claims:** the owner sends a claim with a detail only they would know (what's inside, a mark, a serial number)
@@ -30,6 +30,8 @@ The API runs on Render's free plan, which sleeps after 15 minutes without traffi
 - **Database:** MongoDB (Atlas) with Mongoose
 - **Authentication:** email + password hashed with bcrypt; JWT sent as a Bearer token
 - **Photos:** shrunk in the browser (canvas, max 1200 px wide), stored in MongoDB as binary data
+- **Security:** helmet (security headers), express-rate-limit
+- **Tests:** `node:test` + supertest (backend), Vitest + React Testing Library (frontend), GitHub Actions (CI)
 
 ## Architecture
 ```
@@ -67,9 +69,10 @@ server/                       Express API     → http://localhost:3000
   middleware/checkId.js       rejects malformed ids
   auth/token.js               signs and verifies tokens
   utils/handleDbError.js      turns database errors into JSON answers
-  tests/claims.test.js        automated test of the claim rule
+  tests/claims.test.js        automated tests: login required, the claim rule
   requests.http               test requests for every route
 docs/                         wireframes and database schema
+.github/workflows/ci.yml      runs the tests on GitHub after every push
 ```
 
 ## Setup
@@ -396,19 +399,43 @@ Errors: `400` invalid id · `404` photo not found.
 ## Deployment
 | Part | Host | Settings |
 |---|---|---|
-| Backend | Render (Web Service) | Root directory `server` · build `npm install` · start `npm start` · environment: `MONGODB_URI`, `JWT_SECRET`, `CLIENT_ORIGIN` (the frontend's address, no trailing `/`) |
+| Backend | Render (Web Service) | Root directory `server` · build `npm install` · start `npm start` · environment: `MONGODB_URI`, `JWT_SECRET` (long and random, different from the local one), `CLIENT_ORIGIN` (the frontend's address, no trailing `/`), `NODE_ENV=production` |
 | Frontend | Vercel | Root directory `client` · framework Vite · environment: `VITE_API_URL` (the backend's address, no trailing `/`) |
 | Database | MongoDB Atlas | Network access allows `0.0.0.0/0`, since Render has no fixed IP |
 
 Every push to `main` redeploys both automatically. `VITE_API_URL` is built into the frontend, so changing it needs a redeploy on Vercel.
 
+## Security
+| Risk | Protection |
+|---|---|
+| Stolen passwords | Hashed with bcrypt (cost 12); the hash is never sent back |
+| Acting as someone else | Every private route checks the JWT; the owner always comes from the token, never from the request body |
+| Editing someone else's item (IDOR) | `requireOwner` and the poster checks on claims return `403` |
+| Extra fields (mass assignment) | Only the allowed fields are copied from the body; `userId` and `status` can't be set by the client |
+| Invalid data | Mongoose schema rules (required, enum, max length, format) → `400` with the reasons; malformed ids → `400` |
+| NoSQL injection | Login fields are converted to text, and `mongoose.set('sanitizeFilter', true)` turns `{ "$ne": … }` into a plain value |
+| XSS | React shows all user text as text, never as HTML |
+| CSRF | The token travels in the `Authorization` header, not a cookie, so other sites can't send it |
+| Password guessing | 10 failed logins or signups per 15 minutes per IP, then `429` |
+| Flooding | 300 requests per 15 minutes per IP on the whole API; JSON bodies capped at 10 KB, photos at 2 MB |
+| Security headers | `helmet()`: HSTS, no MIME sniffing, no iframes, no `X-Powered-By` |
+| Leaked secrets | `.env` is git-ignored; only `.env.example` with placeholders is committed; the server stops at startup if a secret is missing |
+| Other sites calling the API | CORS only allows the frontend's exact address |
+
+## Performance
+- Photos are shrunk to at most 1200 px in the browser before upload (a 4 MB phone photo becomes about 150 KB), served with a one-year cache, and lazy-loaded on the board.
+- Database indexes match the main queries: open items by date (the board), items by poster (my posts), claims by sender (claims sent), and the unique index on pending claims.
+- The board loads once; search and filters run in the browser without new requests.
+
 ## Automated tests
+GitHub Actions runs both test suites, the lint and the frontend build after every push (`.github/workflows/ci.yml`). A green check next to a commit on GitHub means everything passed.
+
 **Backend** — `server/tests/claims.test.js`
 ```
 cd server
 npm test
 ```
-Checks the main claim rule: a user who already has a pending claim on an item gets `409` if they claim it again. It runs against an empty MongoDB started in memory (`mongodb-memory-server-core`), so it never touches the real database. The first run downloads MongoDB once (several hundred MB), then it takes a few seconds.
+Checks that posting an item without logging in gets `401`, and the main claim rule: a user who already has a pending claim on an item gets `409` if they claim it again. It runs against an empty MongoDB started in memory (`mongodb-memory-server-core`), so it never touches the real database. The first run downloads MongoDB once (several hundred MB), then it takes a few seconds.
 Tools: Node's built-in test runner (`node:test`), and `supertest` to send requests to the app without starting a server.
 
 **Frontend** — `client/src/components/ItemCard.test.jsx`

@@ -25,4 +25,7 @@ claimSchema.index(
   { unique: true, partialFilterExpression: { status: 'pending' } }
 );
 
+// Index for "claims sent": my claims, newest first
+claimSchema.index({ userId: 1, createdAt: -1 });
+
 export const Claim = mongoose.model('Claim', claimSchema);
