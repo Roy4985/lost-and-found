@@ -15,6 +15,7 @@ The API runs on Render's free plan, which sleeps after 15 minutes without traffi
 - **Backend:** Node.js + Express (REST API)
 - **Database:** MongoDB (Atlas) with Mongoose
 - **Authentication:** email + password hashed with bcrypt; JWT sent as a Bearer token
+- **Photos:** shrunk in the browser (canvas, max 1200 px wide), stored in MongoDB as binary data
 
 ## Project structure
 ```
@@ -23,17 +24,21 @@ client/                       React frontend  → http://localhost:5173
   src/components/             reusable pieces (navbar, item card, claim list…)
   src/auth/                   login state shared through React context
   src/api.js                  fetch helper that adds the login token
+  src/photos.js               shrinks a photo in the browser and uploads it
   vercel.json                 sends every path to index.html (client-side routing)
 server/                       Express API     → http://localhost:3000
-  server.js                   app setup, middleware, database connection
-  models/                     User, Item, Claim schemas (fields, types, rules)
+  app.js                      the Express app: middleware and routes
+  server.js                   connects to MongoDB, then starts the app
+  models/                     User, Item, Claim, Photo schemas (fields, types, rules)
   routes/auth.js              signup, login, current user
   routes/items.js             items CRUD (owner-only edit and delete)
   routes/claims.js            send, list, accept and reject claims
+  routes/photos.js            upload a photo, serve it back
   middleware/requireAuth.js   checks the login token on protected routes
   middleware/checkId.js       rejects malformed ids
   auth/token.js               signs and verifies tokens
   utils/handleDbError.js      turns database errors into JSON answers
+  tests/claims.test.js        automated test of the claim rule
   requests.http               test requests for every route
 docs/                         wireframes and database schema
 ```
@@ -103,6 +108,8 @@ Tokens expire after 1 hour; log in again to get a new one.
 | GET | `/api/claims/received` | logged in | Claims on items I posted | 200 |
 | PATCH | `/api/claims/:id/accept` | poster only | Accept a claim, close the item | 200 |
 | PATCH | `/api/claims/:id/reject` | poster only | Reject a claim | 200 |
+| POST | `/api/photos` | logged in | Upload a photo (JPEG, PNG or WebP, max 2 MB) | 201 |
+| GET | `/api/photos/:id` | public | Get a photo | 200 |
 
 Errors always come back as JSON, e.g. `{"error": "Item not found"}`. Common ones: `400` invalid id or data, `404` not found, `409` conflicts with the current state. Any unknown route returns `404 {"error": "Route not found"}`, and malformed JSON returns `400 {"error": "Malformed JSON in request body"}`.
 
@@ -169,7 +176,7 @@ Response `200`: the logged-in user. Errors: `401` missing or invalid token.
 | `category` | String | required — `electronics`, `keys`, `cards-ids`, `bags`, `clothing`, `other` |
 | `location` | String | required, max 100 characters |
 | `date` | Date | required — when it was lost or found (e.g. `2026-11-08`) |
-| `photoUrl` | String | optional |
+| `photoUrl` | String | optional — must be a photo uploaded to this app (`/api/photos/<id>`). Replacing or removing it deletes the old photo |
 | `userId` | ObjectId | set by the server from the token: who posted it |
 | `status` | String | `open` (default) or `closed` — changed only by accepting a claim |
 | `_id`, `createdAt`, `updatedAt` | — | set automatically by the server |
@@ -330,6 +337,31 @@ curl -X PATCH http://localhost:3000/api/claims/6731c4d5e6f7a8b9c0d1e2f3/reject \
 Response `200`: the claim with `"status": "rejected"`. The item stays open.
 Errors: same as accept.
 
+### Photo routes
+Photos are stored in their own `photos` collection: `userId` (who uploaded it), `contentType` and `data` (the image bytes). The browser shrinks every photo to at most 1200 px wide as a JPEG before uploading, so most photos are 100–300 KB.
+
+#### POST /api/photos
+The body is the image itself, not JSON.
+```
+curl -X POST http://localhost:3000/api/photos \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: image/jpeg" \
+  --data-binary @wallet.jpg
+```
+Response `201`:
+```json
+{ "url": "/api/photos/6731d5e6f7a8b9c0d1e2f3a4" }
+```
+Put this `url` in an item's `photoUrl`.
+Errors: `400` not a JPEG, PNG or WebP image · `401` not logged in · `413` larger than 2 MB.
+
+#### GET /api/photos/:id
+```
+curl http://localhost:3000/api/photos/6731d5e6f7a8b9c0d1e2f3a4 --output photo.jpg
+```
+Response `200`: the image. Browsers cache it for a year, since a photo never changes.
+Errors: `400` invalid id · `404` photo not found.
+
 ---
 
 ## Deployment
@@ -341,7 +373,16 @@ Errors: same as accept.
 
 Every push to `main` redeploys both automatically. `VITE_API_URL` is built into the frontend, so changing it needs a redeploy on Vercel.
 
-## Testing every route
+## Automated test
+```
+cd server
+npm test
+```
+`tests/claims.test.js` checks the main claim rule: a user who already has a pending claim on an item gets `409` if they claim it again. The test runs against an empty MongoDB started in memory (`mongodb-memory-server-core`), so it never touches the real database. The first run downloads MongoDB once, which can take a minute.
+
+Tools: Node's built-in test runner (`node:test`), and `supertest` to send requests to the app without starting a server.
+
+## Testing every route by hand
 `server/requests.http` has a request for every route and error case. Open it in VS Code with the **REST Client** extension:
 1. Start the server with `npm run dev`.
 2. Log in three test users (Roy, Sara and Omar) and paste their tokens into `@token`, `@otherToken` and `@thirdToken` at the top of the file.
