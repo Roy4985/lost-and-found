@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import mongoose from 'mongoose';
 import { Item } from '../models/Item.js';
 import { Claim } from '../models/Claim.js';
 import { requireAuth } from '../middleware/requireAuth.js';
@@ -72,7 +73,8 @@ router.get('/claims/received', requireAuth, async (req, res) => {
   try {
     const myItems = await Item.find({ userId: req.userId }).select('_id');
     const myItemIds = myItems.map((item) => item._id);
-    const claims = await Claim.find({ itemId: { $in: myItemIds } })
+    // mongoose.trusted: this $in is ours, so sanitizeFilter must keep it as an operator
+    const claims = await Claim.find({ itemId: mongoose.trusted({ $in: myItemIds }) })
       .sort({ createdAt: -1 })
       .populate('itemId', 'title type location status')
       .populate('userId', 'name');
@@ -122,7 +124,7 @@ router.patch('/claims/:id/accept', requireAuth, checkId, requirePosterOfClaim, a
 
     // Every other pending claim on this item is rejected.
     await Claim.updateMany(
-      { itemId: item._id, _id: { $ne: req.claim._id }, status: 'pending' },
+      { itemId: item._id, _id: mongoose.trusted({ $ne: req.claim._id }), status: 'pending' },
       { status: 'rejected' }
     );
 
